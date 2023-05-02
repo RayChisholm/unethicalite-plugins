@@ -1,9 +1,8 @@
 package net.unethicalite.plugins.goonbarrows;
 
-import lombok.NoArgsConstructor;
+import com.google.inject.Inject;
 import net.runelite.api.Client;
 import net.runelite.api.GameState;
-import net.runelite.api.mixins.Inject;
 import net.runelite.client.ui.overlay.OverlayLayer;
 import net.runelite.client.ui.overlay.OverlayPanel;
 import net.runelite.client.ui.overlay.OverlayPosition;
