@@ -6,20 +6,20 @@
   "id": "goonbarrows-plugin",
   "releases": [{
     "date": "2023-05-02",
-    "sha512sum": "41DA4950ECE537EC6614C0102D2F8EA5EA121ED51E156D3823375B533D748F25DC8C86912015A862AB821BFEEF3759A0811F88B914066E8F4F6516119E1CDD5C",
+    "sha512sum": "AF849ED2A0FD33089BCCD427D7D3D528F6EAA75EE129ED293C277BCA488DF08F89155FD34FE01A53A5D83B101C5640F3F203FE9FD7A90DDFAF87A9CDB0A75FD1",
     "version": "0.0.1",
     "url": "https://github.com/RayChisholm/unethicalite-plugins/blob/master/release/goon-barrows-0.0.1.jar?raw=true",
     "requires": "^1.0.0"
   }]
 }, {
   "projectUrl": "",
-  "provider": "melxin",
+  "provider": "RayChisholm",
   "name": "Goon Hotkey Swap",
   "description": "Testing adding to a repo",
   "id": "goonhotkeyswap-plugin",
   "releases": [{
     "date": "2023-05-02",
-    "sha512sum": "E451F4B39990D37110BB937655812FF0E34014C4917BB5EE9283C52EC6AE1138DBEA2240DE568884B83E9CCEFA4712C22425FF4884F252807C11A78AB0AAAFC2",
+    "sha512sum": "B53AED69447E4C2ABEDACB4BC6FF1745265FD778F044F226C7E6FBAAFFD3131C17F40DE9D53D3A56582F79C26C472BE8D4CF41F615DD1870332A68B258B32DF3",
     "version": "0.0.1",
     "url": "https://github.com/melxin/devious-plugins-extended/blob/master/release/goon-hotkeyswap-0.0.1.jar?raw=true",
     "requires": "^1.0.0"

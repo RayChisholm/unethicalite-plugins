@@ -1,10 +1,15 @@
-package net.unethicalite.plugins.goonbarrows;
+package net.unethicalite.plugins.goonbarrows.helpers;
 
 import com.google.inject.Inject;
 import lombok.Getter;
 import lombok.Setter;
 import net.runelite.api.Prayer;
 import net.unethicalite.api.widgets.Prayers;
+import net.unethicalite.plugins.goonbarrows.data.DefensivePrayer;
+import net.unethicalite.plugins.goonbarrows.data.OffensivePrayer;
+import net.unethicalite.plugins.goonbarrows.helpers.Setups;
+import net.unethicalite.plugins.goonbarrows.helpers.GearSetup;
+import net.unethicalite.plugins.goonbarrows.GoonBarrowsConfig;
 
 import java.time.OffsetDateTime;
 

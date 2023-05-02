@@ -2,6 +2,12 @@ package net.unethicalite.plugins.goonbarrows;
 
 import net.runelite.api.Prayer;
 import net.runelite.client.config.*;
+import net.unethicalite.plugins.goonbarrows.data.DefensivePrayer;
+import net.unethicalite.plugins.goonbarrows.data.OffensivePrayer;
+import net.unethicalite.plugins.goonbarrows.helpers.Setups;
+import net.unethicalite.plugins.goonbarrows.helpers.GearSetup;
+import net.unethicalite.plugins.goonbarrows.GoonBarrowsConfig;
+
 
 @ConfigGroup(GoonBarrowsConfig.GROUP)
 public interface GoonBarrowsConfig extends Config
@@ -9,19 +15,19 @@ public interface GoonBarrowsConfig extends Config
 	String GROUP = "goonbarrows";
 
 	@ConfigSection(
-			name = "Gear Setup One",
+			name = "Mage Gear",
 			description = "Arguments for Gear Set One",
 			position = 0
 	)
 	String sectionOne = "Gear Set One";
 	@ConfigSection(
-			name = "Gear Setup Two",
+			name = "Ahrims Setup",
 			description = "Arguments for Gear Set Two",
 			position = 4
 	)
 	String sectionTwo = "Gear Setup Two";
 	@ConfigSection(
-			name = "Gear Setup Three",
+			name = "Karils Setup",
 			description = "Arguments for Gear Set Three",
 			position = 8
 	)
@@ -31,7 +37,7 @@ public interface GoonBarrowsConfig extends Config
 
 	@ConfigItem(
 			keyName = "gearsetone",
-			name = "Gear Setup 1",
+			name = "Mage Gear",
 			description = "Gear Names",
 			position = 1,
 			section = sectionOne
@@ -79,7 +85,7 @@ public interface GoonBarrowsConfig extends Config
 
 	@ConfigItem(
 			keyName = "hotkeyOne",
-			name = "Hotkey One",
+			name = "Hotkey",
 			description = "Hotkey for gear swap.",
 			position = 6,
 			section = sectionOne
@@ -88,7 +94,7 @@ public interface GoonBarrowsConfig extends Config
 
 	@ConfigItem(
 			keyName = "gearsettwo",
-			name = "Gear Setup 2",
+			name = "Ahrim Setup",
 			description = "Gear Names",
 			position = 7,
 			section = sectionTwo
@@ -136,7 +142,7 @@ public interface GoonBarrowsConfig extends Config
 
 	@ConfigItem(
 			keyName = "hotkeyTwo",
-			name = "Hotkey Two",
+			name = "Hotkey",
 			description = "Hotkey for gear swap.",
 			position = 12,
 			section = sectionTwo
@@ -145,7 +151,7 @@ public interface GoonBarrowsConfig extends Config
 
 	@ConfigItem(
 			keyName = "gearsetthree",
-			name = "Gear Setup 1",
+			name = "Karil Setup",
 			description = "Gear Names",
 			position = 13,
 			section = sectionThree
@@ -193,7 +199,7 @@ public interface GoonBarrowsConfig extends Config
 
 	@ConfigItem(
 			keyName = "hotkeyThree",
-			name = "Hotkey Three",
+			name = "Hotkey",
 			description = "Hotkey for gear swap.",
 			position = 18,
 			section = sectionThree
@@ -205,7 +211,7 @@ public interface GoonBarrowsConfig extends Config
 			name = "Grab Gear",
 			description = "Button to grab gear",
 			position = 19,
-			clazz = GoonBarrowsPlugin.class
+			clazz = net.unethicalite.plugins.goonbarrows.GoonBarrowsPlugin.class
 	)
 	default Button grabGear() { return new Button(); }
 

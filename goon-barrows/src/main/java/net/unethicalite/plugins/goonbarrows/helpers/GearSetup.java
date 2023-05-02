@@ -1,4 +1,4 @@
-package net.unethicalite.plugins.goonbarrows;
+package net.unethicalite.plugins.goonbarrows.helpers;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;

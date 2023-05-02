@@ -53,7 +53,10 @@ public class GoonHotkeySwapPlugin extends Plugin
 	private final HotkeyListener hotkeyListenerOne = new HotkeyListener(() -> config.hotKeyOne()) {
 		@Override
 		public void hotkeyPressed() {
-			Setups.SETUP_ONE.getSetup().switchGear(50);
+			if (Setups.SETUP_ONE.getSetup().anyUnequipped())
+			{
+				Setups.SETUP_ONE.getSetup().switchGear(50);
+			}
 			if (config.useOffensePrayerOne())
 			{
 				Setups.SETUP_ONE.toggleOffensivePrayer();
@@ -67,7 +70,10 @@ public class GoonHotkeySwapPlugin extends Plugin
 	private final HotkeyListener hotkeyListenerTwo = new HotkeyListener(() -> config.hotKeyTwo()) {
 		@Override
 		public void hotkeyPressed() {
-			Setups.SETUP_TWO.getSetup().switchGear(50);
+			if (Setups.SETUP_TWO.getSetup().anyUnequipped())
+			{
+				Setups.SETUP_TWO.getSetup().switchGear(50);
+			}
 			if (config.useOffensePrayerTwo())
 			{
 				Setups.SETUP_TWO.toggleOffensivePrayer();
@@ -81,7 +87,10 @@ public class GoonHotkeySwapPlugin extends Plugin
 	private final HotkeyListener hotkeyListenerThree = new HotkeyListener(() -> config.hotKeyThree()) {
 		@Override
 		public void hotkeyPressed() {
-			Setups.SETUP_THREE.getSetup().switchGear(50);
+			if (Setups.SETUP_THREE.getSetup().anyUnequipped())
+			{
+				Setups.SETUP_THREE.getSetup().switchGear(50);
+			}
 			if (config.useOffensePrayerThree())
 			{
 				Setups.SETUP_THREE.toggleOffensivePrayer();
