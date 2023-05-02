@@ -36,6 +36,7 @@ rootProject.name = "unethicalite-plugins"
 include("unethical-autologin")
 include("unethical-bankpin")
 include("unethical-logout")
+include("goon-hotkeyswap")
 //include("example-kotlin")
 
 for (project in rootProject.children) {

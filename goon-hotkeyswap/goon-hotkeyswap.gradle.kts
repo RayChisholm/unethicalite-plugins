@@ -1,7 +1,7 @@
-version = "0.0.2"
+version = "0.0.1"
 
-project.extra["PluginName"] = "Unethical Auto Login"
-project.extra["PluginDescription"] = "Automatically logs in specified account in config"
+project.extra["PluginName"] = "Goon Hotkey Swap"
+project.extra["PluginDescription"] = "Testing adding to a repo"
 
 dependencies {
     implementation("org.jboss.aerogear:aerogear-otp-java:1.0.0")
