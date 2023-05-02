@@ -6,7 +6,7 @@
   "id": "goonhotkeyswap-plugin",
   "releases": [{
     "date": "2023-05-02",
-    "sha512sum": "D985AB287D13D15FD0882CEC891A933E2DD1A964A8258F7F79801F6CA1DA990B61FC3042FB24D66D5FF3DE702C94099D67D4C3E74FC5A86AE37C85BAB538CCF8",
+    "sha512sum": "EA71150598B174485B295C886CA664D86D7605AE107147AD4FC10A4D94F65F74516FEFBDFFE341A99DA1C2B90B68885568400F5DCCC0A9F6F492E16E09D46814",
     "version": "0.0.1",
     "url": "https://github.com/melxin/devious-plugins-extended/blob/master/release/goon-hotkeyswap-0.0.1.jar?raw=true",
     "requires": "^1.0.0"
@@ -19,7 +19,7 @@
   "id": "unethicalautologin-plugin",
   "releases": [{
     "date": "2023-04-16",
-    "sha512sum": "18D827F61EE548D94E27A111E10EB5E581C22E5FBDCC04DDE4BFB2C26AE45F3AF34AA7895E1728DB3329902DED04F8CFC21E3B34BD371FF9C970D557EB0B0964",
+    "sha512sum": "C6B26C4BCE4DC0597A01E61B436AF2B02331D4EEBB785EA11D7D7015927C1E059E3BB2BFFF892E15100E0A95FFB8A0704D675ACB65C29D7CBCA05F9818F093DB",
     "version": "0.0.2",
     "url": "https://github.com/melxin/devious-plugins-extended/blob/master/release/unethical-autologin-0.0.2.jar?raw=true",
     "requires": "^1.0.0"
@@ -32,7 +32,7 @@
   "id": "unethicalbankpin-plugin",
   "releases": [{
     "date": "2023-04-16",
-    "sha512sum": "1F3CADED03B311D490C5677E19F66067F5F698A3E742E13F996AA996C10BEE76672DEB0B920EB15E00FDCE0E76DD2FADE375614B2FCC42660428A5169D073F6E",
+    "sha512sum": "C7894366DF4D54350497C8C9492EFE1F566ACCA01BADC149423ED1FF92F5D9B73AA7BE2DBDF1115D8B10AAAF20E504F1F01C895F592703F403ACF4C28401B343",
     "version": "0.0.1",
     "url": "https://github.com/melxin/devious-plugins-extended/blob/master/release/unethical-bankpin-0.0.1.jar?raw=true",
     "requires": "^1.0.0"
@@ -45,7 +45,7 @@
   "id": "unethicallogout-plugin",
   "releases": [{
     "date": "2023-04-16",
-    "sha512sum": "6E8A539B637CDFAFABEB1F4A4E5CD8ED090159A2C910FBB7967C8BB374722DF5B52AB99AD4BA036DC0E4B3E9F482411CCE16B0D1F93B596474CD4E663777E6DF",
+    "sha512sum": "3FAFE6E1461A68EC42E3F15BE86B504FC1059CD9F5D80DF2D3A5BEF44C9761487B2920322F2E24FF07951F4C952CE40E4500B98679A65F786AA8C6CE6C0A95A1",
     "version": "0.0.1",
     "url": "https://github.com/melxin/devious-plugins-extended/blob/master/release/unethical-logout-0.0.1.jar?raw=true",
     "requires": "^1.0.0"
