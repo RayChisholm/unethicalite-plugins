@@ -28,6 +28,14 @@ public interface GoonHotkeySwapConfig extends Config
 	String sectionThree = "Gear Setup Three";
 
 	@ConfigItem(
+			keyName = "useprayer",
+			name = "Enable Prayers",
+			description = "Will Toggle Prayer On Switch",
+			position = 10
+	)
+	default boolean usePrayers() { return false; }
+
+	@ConfigItem(
 			keyName = "gearsetone",
 			name = "Gear Setup 1",
 			description = "Gear Names",
@@ -121,7 +129,7 @@ public interface GoonHotkeySwapConfig extends Config
 			keyName = "grabGear",
 			name = "Grab Gear",
 			description = "Button to grab gear",
-			position = 10,
+			position = 11,
 			clazz = GoonHotkeySwapPlugin.class
 	)
 	default Button grabGear() { return new Button(); }
