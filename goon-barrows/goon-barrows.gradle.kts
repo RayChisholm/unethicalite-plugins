@@ -1,7 +1,7 @@
 version = "0.0.1"
 
-project.extra["PluginName"] = "Goon Hotkey Swap"
-project.extra["PluginDescription"] = "Hotkey Gear and Prayer Swapping"
+project.extra["PluginName"] = "Goon Barrows"
+project.extra["PluginDescription"] = "Auto Barrows Helper"
 
 dependencies {
     implementation("org.jboss.aerogear:aerogear-otp-java:1.0.0")

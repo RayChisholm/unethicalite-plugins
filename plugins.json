@@ -1,12 +1,25 @@
 [{
   "projectUrl": "",
+  "provider": "RayChisholm",
+  "name": "Goon Barrows",
+  "description": "Auto Barrows Helper",
+  "id": "goonbarrows-plugin",
+  "releases": [{
+    "date": "2023-05-02",
+    "sha512sum": "41DA4950ECE537EC6614C0102D2F8EA5EA121ED51E156D3823375B533D748F25DC8C86912015A862AB821BFEEF3759A0811F88B914066E8F4F6516119E1CDD5C",
+    "version": "0.0.1",
+    "url": "https://github.com/RayChisholm/unethicalite-plugins/blob/master/release/goon-barrows-0.0.1.jar?raw=true",
+    "requires": "^1.0.0"
+  }]
+}, {
+  "projectUrl": "",
   "provider": "melxin",
   "name": "Goon Hotkey Swap",
   "description": "Testing adding to a repo",
   "id": "goonhotkeyswap-plugin",
   "releases": [{
     "date": "2023-05-02",
-    "sha512sum": "EA71150598B174485B295C886CA664D86D7605AE107147AD4FC10A4D94F65F74516FEFBDFFE341A99DA1C2B90B68885568400F5DCCC0A9F6F492E16E09D46814",
+    "sha512sum": "E451F4B39990D37110BB937655812FF0E34014C4917BB5EE9283C52EC6AE1138DBEA2240DE568884B83E9CCEFA4712C22425FF4884F252807C11A78AB0AAAFC2",
     "version": "0.0.1",
     "url": "https://github.com/melxin/devious-plugins-extended/blob/master/release/goon-hotkeyswap-0.0.1.jar?raw=true",
     "requires": "^1.0.0"
