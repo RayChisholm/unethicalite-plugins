@@ -27,13 +27,7 @@ public interface GoonHotkeySwapConfig extends Config
 	)
 	String sectionThree = "Gear Setup Three";
 
-	@ConfigItem(
-			keyName = "useprayer",
-			name = "Enable Prayers",
-			description = "Will Toggle Prayer On Switch",
-			position = 10
-	)
-	default boolean usePrayers() { return false; }
+
 
 	@ConfigItem(
 			keyName = "gearsetone",
@@ -48,19 +42,46 @@ public interface GoonHotkeySwapConfig extends Config
 	}
 
 	@ConfigItem(
-			keyName = "prayerOne",
-			name = "Prayer One",
-			description = "Prayer to activate",
+			keyName = "offensePrayOne",
+			name = "Enable Offensive Prayers",
+			description = "Will Toggle Prayer On Switch",
 			position = 2,
 			section = sectionOne
 	)
-	default Prayer prayerOne() { return Prayer.RIGOUR; }
+	default boolean useOffensePrayerOne() { return false; }
+
+	@ConfigItem(
+			keyName = "defensePrayOne",
+			name = "Enable Defensive Prayers",
+			description = "Will Toggle Prayer On Switch",
+			position = 3,
+			section = sectionOne
+	)
+	default boolean useDefensePrayerOne() { return false; }
+
+	@ConfigItem(
+			keyName = "offensePrayerOne",
+			name = "Offensive Prayer",
+			description = "Offensive Prayer to activate",
+			position = 4,
+			section = sectionOne
+	)
+	default OffensivePrayer offensivePrayerOne() { return OffensivePrayer.PIETY; }
+
+	@ConfigItem(
+			keyName = "defensePrayerOne",
+			name = "Defensive Prayer",
+			description = "Defensive Prayer to activate",
+			position = 5,
+			section = sectionOne
+	)
+	default DefensivePrayer defensivePrayerOne() { return DefensivePrayer.PROTECT_FROM_MAGIC; }
 
 	@ConfigItem(
 			keyName = "hotkeyOne",
 			name = "Hotkey One",
 			description = "Hotkey for gear swap.",
-			position = 3,
+			position = 6,
 			section = sectionOne
 	)
 	default Keybind hotKeyOne() { return Keybind.NOT_SET; }
@@ -69,7 +90,7 @@ public interface GoonHotkeySwapConfig extends Config
 			keyName = "gearsettwo",
 			name = "Gear Setup 2",
 			description = "Gear Names",
-			position = 4,
+			position = 7,
 			section = sectionTwo
 	)
 	default String gearTwo()
@@ -78,19 +99,46 @@ public interface GoonHotkeySwapConfig extends Config
 	}
 
 	@ConfigItem(
-			keyName = "prayerTwo",
-			name = "Prayer Two",
-			description = "Prayer to activate",
-			position = 5,
+			keyName = "offensePrayTwo",
+			name = "Enable Offensive Prayers",
+			description = "Will Toggle Prayer On Switch",
+			position = 8,
 			section = sectionTwo
 	)
-	default Prayer prayerTwo() { return Prayer.RIGOUR; }
+	default boolean useOffensePrayerTwo() { return false; }
+
+	@ConfigItem(
+			keyName = "defensePrayTwo",
+			name = "Enable Defensive Prayers",
+			description = "Will Toggle Prayer On Switch",
+			position = 9,
+			section = sectionTwo
+	)
+	default boolean useDefensePrayerTwo() { return false; }
+
+	@ConfigItem(
+			keyName = "offensePrayerTwo",
+			name = "Offensive Prayer",
+			description = "Offensive Prayer to activate",
+			position = 10,
+			section = sectionTwo
+	)
+	default OffensivePrayer offensivePrayerTwo() { return OffensivePrayer.PIETY; }
+
+	@ConfigItem(
+			keyName = "defensePrayerTwo",
+			name = "Defensive Prayer",
+			description = "Defensive Prayer to activate",
+			position = 11,
+			section = sectionTwo
+	)
+	default DefensivePrayer defensivePrayerTwo() { return DefensivePrayer.PROTECT_FROM_MAGIC; }
 
 	@ConfigItem(
 			keyName = "hotkeyTwo",
 			name = "Hotkey Two",
 			description = "Hotkey for gear swap.",
-			position = 6,
+			position = 12,
 			section = sectionTwo
 	)
 	default Keybind hotKeyTwo() { return Keybind.NOT_SET; }
@@ -99,7 +147,7 @@ public interface GoonHotkeySwapConfig extends Config
 			keyName = "gearsetthree",
 			name = "Gear Setup 1",
 			description = "Gear Names",
-			position = 7,
+			position = 13,
 			section = sectionThree
 	)
 	default String gearThree()
@@ -108,19 +156,46 @@ public interface GoonHotkeySwapConfig extends Config
 	}
 
 	@ConfigItem(
-			keyName = "prayerThree",
-			name = "Prayer Three",
-			description = "Prayer to activate",
-			position = 8,
+			keyName = "offensePrayThree",
+			name = "Enable Offensive Prayers",
+			description = "Will Toggle Prayer On Switch",
+			position = 14,
+			section = sectionTwo
+	)
+	default boolean useOffensePrayerThree() { return false; }
+
+	@ConfigItem(
+			keyName = "defensePrayThree",
+			name = "Enable Defensive Prayers",
+			description = "Will Toggle Prayer On Switch",
+			position = 15,
+			section = sectionTwo
+	)
+	default boolean useDefensePrayerThree() { return false; }
+
+	@ConfigItem(
+			keyName = "offensePrayerThree",
+			name = "Offensive Prayer",
+			description = "Offensive Prayer to activate",
+			position = 16,
 			section = sectionThree
 	)
-	default Prayer prayerThree() { return Prayer.RIGOUR; }
+	default OffensivePrayer offensivePrayerThree() { return OffensivePrayer.PIETY; }
+
+	@ConfigItem(
+			keyName = "defensePrayerThree",
+			name = "Defensive Prayer",
+			description = "Defensive Prayer to activate",
+			position = 17,
+			section = sectionThree
+	)
+	default DefensivePrayer defensivePrayerThree() { return DefensivePrayer.PROTECT_FROM_MAGIC; }
 
 	@ConfigItem(
 			keyName = "hotkeyThree",
 			name = "Hotkey Three",
 			description = "Hotkey for gear swap.",
-			position = 9,
+			position = 18,
 			section = sectionThree
 	)
 	default Keybind hotKeyThree() { return Keybind.NOT_SET; }
@@ -129,7 +204,7 @@ public interface GoonHotkeySwapConfig extends Config
 			keyName = "grabGear",
 			name = "Grab Gear",
 			description = "Button to grab gear",
-			position = 11,
+			position = 19,
 			clazz = GoonHotkeySwapPlugin.class
 	)
 	default Button grabGear() { return new Button(); }

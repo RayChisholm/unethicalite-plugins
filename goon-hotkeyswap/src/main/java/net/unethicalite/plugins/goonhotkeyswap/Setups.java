@@ -4,6 +4,9 @@ import com.google.inject.Inject;
 import lombok.Getter;
 import lombok.Setter;
 import net.runelite.api.Prayer;
+import net.unethicalite.api.widgets.Prayers;
+
+import java.time.OffsetDateTime;
 
 @Getter
 public enum Setups {
@@ -14,7 +17,9 @@ public enum Setups {
     @Setter
     private GearSetup setup;
     @Setter
-    private Prayer prayer;
+    private OffensivePrayer oprayer;
+    @Setter
+    private DefensivePrayer dprayer;
 
     public static void setSetupOne(GearSetup gearSetup)
     {
@@ -29,16 +34,45 @@ public enum Setups {
         SETUP_THREE.setSetup(gearSetup);
     }
 
-    public static void setPrayerOne(Prayer prayer)
+    public static void setOffensivePrayerOne(OffensivePrayer oPrayer)
     {
-        SETUP_ONE.setPrayer(prayer);
+        SETUP_ONE.setOprayer(oPrayer);
     }
-    public static void setPrayerTwo(Prayer prayer)
+    public static void setOffensivePrayerTwo(OffensivePrayer oPrayer)
     {
-        SETUP_TWO.setPrayer(prayer);
+        SETUP_TWO.setOprayer(oPrayer);
     }
-    public static void setPrayerThree(Prayer prayer)
+    public static void setOffensivePrayerThree(OffensivePrayer oPrayer)
     {
-        SETUP_THREE.setPrayer(prayer);
+        SETUP_THREE.setOprayer(oPrayer);
     }
+
+    public static void setDefensivePrayerOne(DefensivePrayer dPrayer)
+    {
+        SETUP_ONE.setDprayer(dPrayer);
+    }
+    public static void setDefensivePrayerTwo(DefensivePrayer dPrayer)
+    {
+        SETUP_TWO.setDprayer(dPrayer);
+    }
+    public static void setDefensivePrayerThree(DefensivePrayer dPrayer)
+    {
+        SETUP_THREE.setDprayer(dPrayer);
+    }
+
+    public void toggleOffensivePrayer()
+    {
+        if (!Prayers.isEnabled(this.getOprayer().getPrayer()))
+        {
+            Prayers.toggle(this.getOprayer().getPrayer());
+        }
+    }
+    public void toggleDefensivePrayer()
+    {
+        if (!Prayers.isEnabled(this.getDprayer().getPrayer()))
+        {
+            Prayers.toggle(this.getDprayer().getPrayer());
+        }
+    }
+
 }

@@ -6,7 +6,7 @@
   "id": "goonhotkeyswap-plugin",
   "releases": [{
     "date": "2023-05-02",
-    "sha512sum": "9588DB018EE2A783B4B595E97E41E924AC898C256CE75B0E8CD081909BC33F511B111AD5EEF01A29F8FE0986A1D32863F0FFED51636276CD35CE8914C4D9FD65",
+    "sha512sum": "D985AB287D13D15FD0882CEC891A933E2DD1A964A8258F7F79801F6CA1DA990B61FC3042FB24D66D5FF3DE702C94099D67D4C3E74FC5A86AE37C85BAB538CCF8",
     "version": "0.0.1",
     "url": "https://github.com/melxin/devious-plugins-extended/blob/master/release/goon-hotkeyswap-0.0.1.jar?raw=true",
     "requires": "^1.0.0"

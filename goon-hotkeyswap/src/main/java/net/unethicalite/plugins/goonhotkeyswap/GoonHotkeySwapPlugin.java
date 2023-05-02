@@ -54,21 +54,42 @@ public class GoonHotkeySwapPlugin extends Plugin
 		@Override
 		public void hotkeyPressed() {
 			Setups.SETUP_ONE.getSetup().switchGear(50);
-			togglePrayer(Setups.SETUP_ONE);
+			if (config.useOffensePrayerOne())
+			{
+				Setups.SETUP_ONE.toggleOffensivePrayer();
+			}
+			if (config.useDefensePrayerOne())
+			{
+				Setups.SETUP_ONE.toggleDefensivePrayer();
+			}
 		}
 	};
 	private final HotkeyListener hotkeyListenerTwo = new HotkeyListener(() -> config.hotKeyTwo()) {
 		@Override
 		public void hotkeyPressed() {
 			Setups.SETUP_TWO.getSetup().switchGear(50);
-			togglePrayer(Setups.SETUP_TWO);
+			if (config.useOffensePrayerTwo())
+			{
+				Setups.SETUP_TWO.toggleOffensivePrayer();
+			}
+			if (config.useDefensePrayerTwo())
+			{
+				Setups.SETUP_TWO.toggleDefensivePrayer();
+			}
 		}
 	};
 	private final HotkeyListener hotkeyListenerThree = new HotkeyListener(() -> config.hotKeyThree()) {
 		@Override
 		public void hotkeyPressed() {
 			Setups.SETUP_THREE.getSetup().switchGear(50);
-			togglePrayer(Setups.SETUP_THREE);
+			if (config.useOffensePrayerThree())
+			{
+				Setups.SETUP_THREE.toggleOffensivePrayer();
+			}
+			if (config.useDefensePrayerThree())
+			{
+				Setups.SETUP_THREE.toggleDefensivePrayer();
+			}
 		}
 	};
 
@@ -137,17 +158,14 @@ public class GoonHotkeySwapPlugin extends Plugin
 		Setups.setSetupTwo(new GearSetup(gearSetupTwo));
 		Setups.setSetupThree(new GearSetup(gearSetupThree));
 
-		Setups.setPrayerOne(config.prayerOne());
-		Setups.setPrayerTwo(config.prayerTwo());
-		Setups.setPrayerThree(config.prayerThree());
-	}
+		Setups.setOffensivePrayerOne(config.offensivePrayerOne());
+		Setups.setDefensivePrayerOne(config.defensivePrayerOne());
 
-	private void togglePrayer(Setups s)
-	{
-		if (!Prayers.isEnabled(s.getPrayer()) && config.usePrayers())
-		{
-			Prayers.toggle(s.getPrayer());
-		}
+		Setups.setOffensivePrayerTwo(config.offensivePrayerTwo());
+		Setups.setDefensivePrayerTwo(config.defensivePrayerTwo());
+
+		Setups.setOffensivePrayerThree(config.offensivePrayerThree());
+		Setups.setDefensivePrayerThree(config.defensivePrayerThree());
 	}
 
 }
