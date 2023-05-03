@@ -684,7 +684,7 @@ public class GoonBarrowsPlugin extends Plugin
 						if (Bank.getCount(true, ItemID.COOKED_KARAMBWAN) < foodQuantity) {
 							print("Out of food. Stopping plugin.");
 						}
-						Bank.withdraw(ItemID.COOKED_KARAMBWAN, foodQuantity, Bank.WithdrawMode.ITEM);
+						Bank.withdraw(ItemID.COOKED_KARAMBWAN, 1, Bank.WithdrawMode.ITEM);
 					}
 
 					if (!Inventory.contains(Predicates.ids(Constants.DUELING_RING_IDS))
