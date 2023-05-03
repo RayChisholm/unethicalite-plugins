@@ -678,7 +678,7 @@ public class GoonBarrowsPlugin extends Plugin
 						}
 					}
 
-					int foodQuantity = 5 - Inventory.getCount(ItemID.COOKED_KARAMBWAN);
+					int foodQuantity = 6 - Inventory.getCount(ItemID.COOKED_KARAMBWAN);
 					if (foodQuantity > 0) {
 						if (Bank.getCount(true, ItemID.COOKED_KARAMBWAN) < foodQuantity) {
 							print("Out of food. Stopping plugin.");

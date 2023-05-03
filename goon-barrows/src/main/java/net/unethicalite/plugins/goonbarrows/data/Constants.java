@@ -23,7 +23,7 @@ public class Constants {
     );
 
     public static final Set<Integer> BARROWS_BASIC_LOOT_IDS = ImmutableSet.of(
-            ItemID.COINS,
+            ItemID.COINS_995,
             ItemID.MIND_RUNE,
             ItemID.CHAOS_RUNE,
             ItemID.BLOOD_RUNE,
