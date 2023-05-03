@@ -12,7 +12,7 @@ import java.util.Set;
 
 public class Constants {
     public static final WorldArea TUNNEL_AREA = new WorldArea(3521, 9665, 60, 60, 0);
-    public static final WorldArea BARROWS_AREA = new WorldArea(3545, 3266, 41, 43, 0);
+    public static final WorldArea BARROWS_AREA = new WorldArea(3545, 3264, 41, 58, 0);
 
     public static final Map<WidgetInfo, WidgetInfo> POSSIBLE_SOLUTIONS = ImmutableMap.of(
             WidgetInfo.BARROWS_PUZZLE_ANSWER1, WidgetInfo.BARROWS_PUZZLE_ANSWER1_CONTAINER,

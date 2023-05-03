@@ -23,8 +23,10 @@ import net.runelite.client.plugins.PluginDescriptor;
 import net.runelite.client.ui.overlay.OverlayManager;
 import net.runelite.client.util.HotkeyListener;
 import net.unethicalite.api.commons.Time;
+import net.unethicalite.api.coords.RectangularArea;
 import net.unethicalite.api.entities.NPCs;
 import net.unethicalite.api.entities.TileObjects;
+import net.unethicalite.api.movement.Movement;
 import net.unethicalite.api.widgets.Dialog;
 import net.unethicalite.api.game.Combat;
 import net.unethicalite.api.game.GameThread;
@@ -173,6 +175,7 @@ public class GoonBarrowsPlugin extends Plugin
 		eatFood();
 		drinkPrayer();
 		handleBrotherSetups();
+		walkAndDig();
 		tombHandler();
 	}
 
@@ -269,6 +272,20 @@ public class GoonBarrowsPlugin extends Plugin
 		Setups.setDefensivePrayerThree(config.defensivePrayerThree());
 	}
 
+	private void walkAndDig()
+	{
+		if (Constants.BARROWS_AREA.contains(client.getLocalPlayer()) && currentBrother != null)
+		{
+			RectangularArea digArea = new RectangularArea(currentBrother.getLocation(), 2, 2);
+
+			if (digArea.contains(client.getLocalPlayer()))
+			{
+				Inventory.getFirst(ItemID.SPADE).interact(1);
+			}
+			Movement.walkTo(currentBrother.getLocation());
+		}
+	}
+
 	private void tombHandler()
 	{
 		if (BarrowsBrothers.getBrotherCrypt() != null)
@@ -291,6 +308,10 @@ public class GoonBarrowsPlugin extends Plugin
 					if (Dialog.isOpen())
 					{
 						Dialog.invokeDialog(DialogOption.PLAIN_CONTINUE, DialogOption.CHAT_OPTION_ONE);
+					}
+					else
+					{
+						TileObjects.getNearest("Sarcophagus").interact("Search");
 					}
 				}
 			}
