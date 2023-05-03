@@ -377,7 +377,7 @@ public class GoonBarrowsPlugin extends Plugin
 			if (Inventory.getFirst(ItemID.COOKED_KARAMBWAN) != null) {
 				Inventory.getFirst(ItemID.COOKED_KARAMBWAN).interact("Eat");
 			}
-			else
+			else if (Combat.getCurrentHealth() < 40)
 			{
 				teleHome();
 			}
