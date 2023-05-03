@@ -586,7 +586,9 @@ public class GoonBarrowsPlugin extends Plugin
 			newRun = true;
 			if (Combat.getMissingHealth() > 0 || Prayers.getPoints() < Skills.getLevel(Skill.PRAYER))
 			{
-				TileObjects.getNearest(ObjectID.POOL_OF_REFRESHMENT).interact("Drink");
+				if (client.getLocalPlayer().isIdle()) {
+					TileObjects.getNearest(ObjectID.POOL_OF_REFRESHMENT).interact("Drink");
+				}
 			}
 
 			else if (!Inventory.contains((i) -> Constants.PRAYER_RESTORE_POTION_IDS.contains(i.getId()))
@@ -597,7 +599,7 @@ public class GoonBarrowsPlugin extends Plugin
 					|| Inventory.contains(Predicates.ids(Constants.BARROWS_UNDEGRADED_IDS)))
 			{
 
-				if (!Bank.isOpen()) {
+				if (!Bank.isOpen() && client.getLocalPlayer().isIdle()) {
 					TileObjects.getNearest("Bank chest").interact("Use");
 				}
 
@@ -697,6 +699,10 @@ public class GoonBarrowsPlugin extends Plugin
 	{
 		if (Static.getClient().isInInstancedRegion())
 		{
+			if (!Movement.isRunEnabled())
+			{
+				Movement.toggleRun();
+			}
 			if (Equipment.fromSlot(EquipmentInventorySlot.RING) == null) {
 				Inventory.getFirst(Predicates.ids(Constants.DUELING_RING_IDS)).interact("Wear");
 			}
