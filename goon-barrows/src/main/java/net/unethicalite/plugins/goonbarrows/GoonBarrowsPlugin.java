@@ -342,7 +342,7 @@ public class GoonBarrowsPlugin extends Plugin
 	{
 		if (Room.getCurrentRoom() == Room.C && !Room.isInCorridor())
 		{
-			if (getPotentialWithLastBrother() >= 1012) {
+			if (getPotentialWithLastBrother() >= 880) {
 				if (TileObjects.getNearest("Chest").hasAction("Open")) {
 					GameThread.invoke(() -> TileObjects.getNearest("Chest").interact("Open"));
 				}
