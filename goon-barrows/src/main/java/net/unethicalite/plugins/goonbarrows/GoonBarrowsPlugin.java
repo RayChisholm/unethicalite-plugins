@@ -366,7 +366,7 @@ public class GoonBarrowsPlugin extends Plugin
 					}
 				}
 			}
-		} else if (currentBrother == null || currentBrother.isDead() || currentBrother.isInTunnel()) {
+		} else if (currentBrother == null || currentBrother.isDead() || (currentBrother.isInTunnel() && !onLastBrother())) {
 			if (newRun && currentBrother == null)
 			{
 				currentBrother = killOrder.poll();

@@ -52,6 +52,11 @@ public class GoonBarrowsOverlay extends OverlayPanel {
                         .left("Current:")
                         .right(plugin.getCurrentBrother().getName())
                         .build());
+
+                panelComponent.getChildren().add(LineComponent.builder()
+                        .left("inTunnel:")
+                        .right(String.valueOf(plugin.getCurrentBrother().isInTunnel()))
+                        .build());
             }
 
             panelComponent.getChildren().add(LineComponent.builder()
