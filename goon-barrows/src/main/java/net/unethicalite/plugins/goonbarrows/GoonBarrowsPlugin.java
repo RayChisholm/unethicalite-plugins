@@ -452,6 +452,7 @@ public class GoonBarrowsPlugin extends Plugin
 			if (digArea.contains(client.getLocalPlayer()))
 			{
 				Inventory.getFirst(ItemID.SPADE).interact(1);
+				newRun = false;
 			}
 			Movement.walkTo(currentBrother.getLocation());
 		}
