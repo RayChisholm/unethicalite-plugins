@@ -270,6 +270,7 @@ public class GoonBarrowsPlugin extends Plugin
 		}
 		tunnelPath = null;
 		newRun = true;
+		finished = false;
 		buildKillOrder();
 	}
 
@@ -530,7 +531,7 @@ public class GoonBarrowsPlugin extends Plugin
 			}
 			else if (Combat.getCurrentHealth() < 40)
 			{
-				teleHome();
+				feroxTele();
 			}
 		}
 	}
@@ -562,7 +563,7 @@ public class GoonBarrowsPlugin extends Plugin
 			{
 				if (Combat.getCurrentHealth() < 30)
 				{
-					teleHome();
+					feroxTele();
 				}
 			}
 		}

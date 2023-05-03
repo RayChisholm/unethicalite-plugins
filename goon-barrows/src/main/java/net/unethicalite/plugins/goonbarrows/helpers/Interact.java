@@ -17,9 +17,9 @@ public class Interact {
                 (i) -> i.getId() == id, action, equipmentAction, optionIndex);
     }
 
-    public static boolean interactWithInventoryOrEquipment(
+    public static void interactWithInventoryOrEquipment(
             Collection<Integer> ids, String action, String equipmentAction, int optionIndex) {
-        return interactWithInventoryOrEquipment(
+        interactWithInventoryOrEquipment(
                 Predicates.ids(ids), action, equipmentAction, optionIndex);
     }
 

@@ -16,12 +16,8 @@ public class Constants {
     public static final WorldArea FEROX_ENCLAVE = new WorldArea(3122, 3615, 36, 34, 0);
 
     public static final Set<Integer> PRAYER_RESTORE_POTION_IDS = ImmutableSet.of(
-            ItemID.PRAYER_POTION1,
-            ItemID.PRAYER_POTION2,
             ItemID.PRAYER_POTION3,
             ItemID.PRAYER_POTION4,
-            ItemID.SUPER_RESTORE1,
-            ItemID.SUPER_RESTORE2,
             ItemID.SUPER_RESTORE3,
             ItemID.SUPER_RESTORE4
     );
