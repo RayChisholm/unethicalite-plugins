@@ -64,7 +64,7 @@ public class GoonBarrowsPlugin extends Plugin
 	private final LinkedList<BarrowsBrothers> killOrder = new LinkedList<>();
 	@Getter
 	private BarrowsBrothers currentBrother;
-	private boolean newRun;
+	@Getter private boolean newRun;
 
 	@Inject
 	private ChatMessageManager chatMessageManager;
@@ -173,7 +173,7 @@ public class GoonBarrowsPlugin extends Plugin
 		eatFood();
 		drinkPrayer();
 		handleBrotherSetups();
-		handleTombs();
+		tombHandler();
 	}
 
 	@Subscribe
@@ -269,29 +269,32 @@ public class GoonBarrowsPlugin extends Plugin
 		Setups.setDefensivePrayerThree(config.defensivePrayerThree());
 	}
 
-	private void handleTombs()
+	private void tombHandler()
 	{
 		if (BarrowsBrothers.getBrotherCrypt() != null)
 		{
 			if (!BarrowsBrothers.getBrotherCrypt().isDead() && getVisibleBrother() == null)
 			{
-				if (Dialog.isOpen())
+				if (!currentBrother.isInTunnel())
 				{
-					getCurrentBrother().setInTunnel(true);
-
-					if (onLastBrother())
+					if (Dialog.isOpen())
+					{
+						BarrowsBrothers.getBrotherCrypt().setInTunnel(true);
+					}
+					else
+					{
+						TileObjects.getNearest("Sarcophagus").interact("Search");
+					}
+				}
+				else if (onLastBrother())
+				{
+					if (Dialog.isOpen())
 					{
 						Dialog.invokeDialog(DialogOption.PLAIN_CONTINUE, DialogOption.CHAT_OPTION_ONE);
 					}
 				}
-				TileObjects.getNearest("Sarcophagus").interact("Search");
 			}
-			else if (getVisibleBrother() != null && client.getLocalPlayer().isIdle() && !BarrowsBrothers.getBrotherCrypt().isDead())
-			{
-				NPC npc = Static.getClient().getHintArrowNpc();
-				npc.interact("Attack");
-			}
-			else if ((getVisibleBrother() == null && BarrowsBrothers.getBrotherCrypt().isDead()) || getVisibleBrother() == null && !onLastBrother())
+			if (BarrowsBrothers.getBrotherCrypt().isDead() || (BarrowsBrothers.getBrotherCrypt().isInTunnel() && !onLastBrother()))
 			{
 				TileObjects.getNearest("Staircase").interact("Climb-up");
 			}
@@ -310,6 +313,10 @@ public class GoonBarrowsPlugin extends Plugin
 			if (getVisibleBrother().getSetup().getSetup().anyUnequipped())
 			{
 				getVisibleBrother().getSetup().getSetup().switchGear(50);
+			}
+			if (client.getLocalPlayer().isIdle())
+			{
+				Static.getClient().getHintArrowNpc().interact("Attack");
 			}
 		}
 		else if (Prayers.anyActive())
@@ -350,12 +357,12 @@ public class GoonBarrowsPlugin extends Plugin
 		}
 	}
 
-	private boolean onLastBrother()
+	public boolean onLastBrother()
 	{
 		int alive = 0;
 		for (BarrowsBrothers bro : BarrowsBrothers.values())
 		{
-			if (!bro.isDead() && !bro.isInTunnel())
+			if (!bro.isDead())
 			{
 				alive++;
 			}
@@ -380,10 +387,9 @@ public class GoonBarrowsPlugin extends Plugin
 	private void drinkPrayer()
 	{
 		if (Prayers.getPoints() < 10 &&
-				(BarrowsBrothers.KARIL.getTomb().contains(client.getLocalPlayer())
-				|| BarrowsBrothers.AHRIM.getTomb().contains(client.getLocalPlayer())
-				|| BarrowsBrothers.DHAROK.getTomb().contains(client.getLocalPlayer())
-				|| (Constants.TUNNEL_AREA.contains(client.getLocalPlayer()) && Static.getClient().getHintArrowNpc().distanceTo(client.getLocalPlayer()) < 4)))
+				(	getVisibleBrother() == BarrowsBrothers.KARIL
+				||	getVisibleBrother() == BarrowsBrothers.AHRIM
+				||	getVisibleBrother() == BarrowsBrothers.DHAROK))
 		{
 			if (Inventory.getFirst(ItemID.PRAYER_POTION1) != null)
 			{

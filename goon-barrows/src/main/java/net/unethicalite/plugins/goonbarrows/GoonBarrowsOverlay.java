@@ -54,15 +54,16 @@ public class GoonBarrowsOverlay extends OverlayPanel {
                         .build());
             }
 
-            String name = "";
-            if (Static.getClient().getHintArrowNpc() != null)
-            {
-                name = Static.getClient().getHintArrowNpc().getName();
-            }
             panelComponent.getChildren().add(LineComponent.builder()
-                    .left("Arrow:")
-                    .right(name)
+                    .left("Last One:")
+                    .right(String.valueOf(plugin.onLastBrother()))
                     .build());
+
+            panelComponent.getChildren().add(LineComponent.builder()
+                    .left("New Run:")
+                    .right(String.valueOf(plugin.isNewRun()))
+                    .build());
+
         }
         return super.render(graphics);
     }
