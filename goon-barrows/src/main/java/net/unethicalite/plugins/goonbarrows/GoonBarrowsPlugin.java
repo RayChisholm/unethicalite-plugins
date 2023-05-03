@@ -342,7 +342,7 @@ public class GoonBarrowsPlugin extends Plugin
 	{
 		if (Room.getCurrentRoom() == Room.C && !Room.isInCorridor())
 		{
-			if (getPotentialWithLastBrother() >= 880) {
+			if (getPotentialWithLastBrother() >= 756) {
 				if (TileObjects.getNearest("Chest").hasAction("Open")) {
 					GameThread.invoke(() -> TileObjects.getNearest("Chest").interact("Open"));
 				}
@@ -401,7 +401,7 @@ public class GoonBarrowsPlugin extends Plugin
 				navigatingFrom = tunnelPath.poll();
 				navigatingTo = tunnelPath.peek();
 			}
-			//asdf
+
 			TileObject door = getDoor();
 			if (door == null) { return; }
 
@@ -646,7 +646,8 @@ public class GoonBarrowsPlugin extends Plugin
 					&& !Equipment.contains(Predicates.ids(Constants.DUELING_RING_IDS)))
 					|| Inventory.getCount(ItemID.COOKED_KARAMBWAN) < 5
 					|| Inventory.contains(i -> i.getName().contains("Clue scroll"))
-					|| Inventory.contains(Predicates.ids(Constants.BARROWS_UNDEGRADED_IDS)))
+					|| Inventory.contains(Predicates.ids(Constants.BARROWS_UNDEGRADED_IDS))
+					|| Inventory.contains(Predicates.ids(Constants.BARROWS_BASIC_LOOT_IDS)))
 			{
 
 				if (!Bank.isOpen() && client.getLocalPlayer().isIdle()) {
@@ -678,7 +679,7 @@ public class GoonBarrowsPlugin extends Plugin
 						}
 					}
 
-					int foodQuantity = 6 - Inventory.getCount(ItemID.COOKED_KARAMBWAN);
+					int foodQuantity = 10 - Inventory.getCount(ItemID.COOKED_KARAMBWAN);
 					if (foodQuantity > 0) {
 						if (Bank.getCount(true, ItemID.COOKED_KARAMBWAN) < foodQuantity) {
 							print("Out of food. Stopping plugin.");
