@@ -644,7 +644,7 @@ public class GoonBarrowsPlugin extends Plugin
 			else if (!Inventory.contains((i) -> Constants.PRAYER_RESTORE_POTION_IDS.contains(i.getId()))
 					|| (!Inventory.contains(Predicates.ids(Constants.DUELING_RING_IDS))
 					&& !Equipment.contains(Predicates.ids(Constants.DUELING_RING_IDS)))
-					|| Inventory.getCount(ItemID.COOKED_KARAMBWAN) < 5
+					|| Inventory.getCount(ItemID.COOKED_KARAMBWAN) < 9
 					|| Inventory.contains(i -> i.getName().contains("Clue scroll"))
 					|| Inventory.contains(Predicates.ids(Constants.BARROWS_UNDEGRADED_IDS))
 					|| Inventory.contains(Predicates.ids(Constants.BARROWS_BASIC_LOOT_IDS)))
@@ -703,6 +703,7 @@ public class GoonBarrowsPlugin extends Plugin
 			}
 			else
 			{
+				Bank.close();
 				teleHome();
 			}
 		}
