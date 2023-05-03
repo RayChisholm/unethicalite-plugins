@@ -3,11 +3,17 @@ package net.unethicalite.plugins.goonbarrows;
 import com.google.inject.Inject;
 import com.google.inject.Provides;
 import com.google.inject.Singleton;
-import com.openosrs.client.game.AttackStyle;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import net.runelite.api.*;
-import net.runelite.api.events.ConfigButtonClicked;
-import net.runelite.api.events.GameTick;
+import net.runelite.api.events.*;
+import net.runelite.api.widgets.Widget;
+import net.runelite.api.widgets.WidgetID;
+import net.runelite.api.widgets.WidgetInfo;
+import net.runelite.client.chat.ChatColorType;
+import net.runelite.client.chat.ChatMessageBuilder;
+import net.runelite.client.chat.ChatMessageManager;
+import net.runelite.client.chat.QueuedMessage;
 import net.runelite.client.config.ConfigManager;
 import net.runelite.client.eventbus.Subscribe;
 import net.runelite.client.events.ConfigChanged;
@@ -16,25 +22,21 @@ import net.runelite.client.plugins.Plugin;
 import net.runelite.client.plugins.PluginDescriptor;
 import net.runelite.client.ui.overlay.OverlayManager;
 import net.runelite.client.util.HotkeyListener;
+import net.runelite.client.util.QuantityFormatter;
 import net.unethicalite.api.entities.NPCs;
 import net.unethicalite.api.entities.TileObjects;
 import net.unethicalite.api.game.Combat;
+import net.unethicalite.api.input.Mouse;
 import net.unethicalite.api.items.Equipment;
 import net.unethicalite.api.items.Inventory;
-import net.unethicalite.api.items.Items;
 import net.unethicalite.api.magic.SpellBook;
 import net.unethicalite.api.widgets.Prayers;
 import net.unethicalite.client.Static;
-import net.unethicalite.plugins.goonbarrows.helpers.BarrowsBrothers;
-import org.pf4j.Extension;
-
-import net.unethicalite.plugins.goonbarrows.data.DefensivePrayer;
-import net.unethicalite.plugins.goonbarrows.data.OffensivePrayer;
-import net.unethicalite.plugins.goonbarrows.helpers.Setups;
-import net.unethicalite.plugins.goonbarrows.helpers.GearSetup;
-import net.unethicalite.plugins.goonbarrows.GoonBarrowsConfig;
 import net.unethicalite.plugins.goonbarrows.data.Constants;
-import net.unethicalite.plugins.goonbarrows.GoonBarrowsOverlay;
+import net.unethicalite.plugins.goonbarrows.helpers.BarrowsBrothers;
+import net.unethicalite.plugins.goonbarrows.helpers.GearSetup;
+import net.unethicalite.plugins.goonbarrows.helpers.Setups;
+import org.pf4j.Extension;
 
 import java.awt.*;
 import java.awt.datatransfer.Clipboard;
@@ -50,7 +52,14 @@ import java.util.stream.Collectors;
 public class GoonBarrowsPlugin extends Plugin
 {
 	public Setups setups;
+	@Getter
 	public BarrowsBrothers bros;
+	@Getter
+	private Widget puzzleAnswer;
+	public int customSleep;
+
+	@Inject
+	private ChatMessageManager chatMessageManager;
 
 	@Inject
 	private net.unethicalite.plugins.goonbarrows.GoonBarrowsConfig config;
@@ -118,9 +127,11 @@ public class GoonBarrowsPlugin extends Plugin
 		}
 	};
 
+
 	@Override
 	protected void startUp() throws Exception
 	{
+		customSleep = 0;
 		overlayManager.add(overlay);
 
 		keyManager.registerKeyListener(hotkeyListenerOne);
@@ -128,13 +139,14 @@ public class GoonBarrowsPlugin extends Plugin
 		keyManager.registerKeyListener(hotkeyListenerThree);
 
 		updateGear();
-
+		bros = getBrothers();
 
 	}
 
 	@Override
 	protected void shutDown() throws Exception
 	{
+		puzzleAnswer = null;
 		overlayManager.remove(overlay);
 
 		keyManager.unregisterKeyListener(hotkeyListenerOne);
@@ -145,14 +157,80 @@ public class GoonBarrowsPlugin extends Plugin
 	@Subscribe
 	private void onGameTick(GameTick e)
 	{
+		if (customSleep > 0)
+		{
+			customSleep--;
+		}
+		if (client.getLocalPlayer().getAnimation() == Constants.DIG_ANIM)
+		{
+			customSleep += 3;
+		}
 		if (client.getLocalPlayer().getPlane() == 0 && !Constants.TUNNEL_AREA.contains(client.getLocalPlayer()))
 		{
 			Prayers.disableAll();
 		}
-
+		bros = getBrothers();
 		eatFood();
 		drinkPrayer();
-		inTombGearSwitch();
+		//inTombGearSwitch();
+		tombHandler();
+	}
+
+	@Subscribe
+	public void onWidgetLoaded(WidgetLoaded event)
+	{
+		/*if (event.getGroupId() == WidgetID.BARROWS_REWARD_GROUP_ID)
+		{
+			ItemContainer barrowsRewardContainer = client.getItemContainer(InventoryID.BARROWS_REWARD);
+			if (barrowsRewardContainer == null)
+			{
+				return;
+			}
+
+			Item[] items = barrowsRewardContainer.getItems();
+			long chestPrice = 0;
+
+			for (Item item : items)
+			{
+				long itemStack = (long) itemManager.getItemPrice(item.getId()) * (long) item.getQuantity();
+				chestPrice += itemStack;
+			}
+
+			final ChatMessageBuilder message = new ChatMessageBuilder()
+					.append(ChatColorType.HIGHLIGHT)
+					.append("Your chest is worth around ")
+					.append(QuantityFormatter.formatNumber(chestPrice))
+					.append(" coins.")
+					.append(ChatColorType.NORMAL);
+
+			chatMessageManager.queue(QueuedMessage.builder()
+					.type(ChatMessageType.ITEM_EXAMINE)
+					.runeLiteFormattedMessage(message.build())
+					.build());
+		}*/
+		/*else */
+		print("Widget loaded " + event.getGroupId());
+		if (event.getGroupId() == WidgetID.BARROWS_PUZZLE_GROUP_ID)
+		{
+			print("Puzzle seen");
+			final int answer = client.getWidget(WidgetInfo.BARROWS_FIRST_PUZZLE).getModelId() - 3;
+			puzzleAnswer = null;
+
+			for (WidgetInfo puzzleNode : Constants.POSSIBLE_SOLUTIONS)
+			{
+				final Widget widgetToCheck = client.getWidget(puzzleNode);
+
+				if (widgetToCheck != null && widgetToCheck.getModelId() == answer)
+				{
+					puzzleAnswer = client.getWidget(puzzleNode);
+					break;
+				}
+			}
+			print("Click widget " + puzzleAnswer);
+			print(String.valueOf(puzzleAnswer.getClickPoint()));
+			Mouse.click(puzzleAnswer.getClickPoint().getAwtPoint(), true);
+			print(String.valueOf(puzzleAnswer.getClickPoint().getAwtPoint()));
+		}
 	}
 
 	@Subscribe
@@ -204,157 +282,219 @@ public class GoonBarrowsPlugin extends Plugin
 		Setups.setDefensivePrayerThree(config.defensivePrayerThree());
 	}
 
+	private void handleOneTomb(BarrowsBrothers b)
+	{
+		if (b.getTomb().contains(client.getLocalPlayer())) {
+			if (b.getSetup().getSetup().anyUnequipped()) {
+				b.getSetup().getSetup().switchGear(50);
+				print("Gear switch " + b.getName());
+			}
+
+			if (Static.getClient().hasHintArrow()) {
+
+				final NPC npc = Static.getClient().getHintArrowNpc();
+
+				if (!Prayers.isEnabled(b.getPrayer()) && npc.distanceTo(client.getLocalPlayer()) < 4) {
+					Prayers.toggle(b.getPrayer());
+					print("Enable prayer " + b.getName());
+				}
+				if (client.getLocalPlayer().isIdle()) {
+					if (client.getVarbitValue(b.getKilledVarbit()) == 0) {
+						if (NPCs.getNearest(b.getId()).distanceTo(client.getLocalPlayer()) < 4) {
+							print("Attack " + b.getName());
+							npc.interact("Attack");
+						}
+					} else if (client.getVarbitValue(b.getKilledVarbit()) > 0) {
+						TileObjects.getNearest("Staircase").interact("Climb-up");
+						Prayers.disableAll();
+					}
+				}
+			}
+		}
+	}
+
+	private void tombHandler()
+	{
+		if (customSleep > 0)
+		{
+			TileObjects.getNearest("Sarcophagus").interact("Search");
+		}
+		else
+		{
+			handleOneTomb(BarrowsBrothers.KARIL);
+			handleOneTomb(BarrowsBrothers.AHRIM);
+			handleOneTomb(BarrowsBrothers.DHAROK);
+			handleOneTomb(BarrowsBrothers.GUTHAN);
+			handleOneTomb(BarrowsBrothers.TORAG);
+			handleOneTomb(BarrowsBrothers.VERAC);
+		}
+	}
+
+
+
 	private void inTombGearSwitch()
 	{
-		if (BarrowsBrothers.AHRIM.getTomb().contains(client.getLocalPlayer()))
+		if (customSleep > 0)
 		{
-			if (BarrowsBrothers.AHRIM.getSetup().getSetup().anyUnequipped()) {
-				BarrowsBrothers.AHRIM.getSetup().getSetup().switchGear(50);
-			}
-			if (Static.getClient().hasHintArrow())
-			{
-				final NPC npc = Static.getClient().getHintArrowNpc();
-				if (!Prayers.isEnabled(BarrowsBrothers.AHRIM.getPrayer()) && npc.distanceTo(client.getLocalPlayer()) < 4)
-				{
-					Prayers.toggle(BarrowsBrothers.AHRIM.getPrayer());
-				}
-				else
-				{
-					Prayers.disableAll();
-				}
-				if (client.getLocalPlayer().isIdle()) {
-					if (BarrowsBrothers.AHRIM.getKilledVarbit() < 1) {
-						npc.interact("Attack");
-					}
-					else {
-						TileObjects.getNearest("Staircase").interact("Climb-up");
-						Prayers.disableAll();
-					}
-				}
-			}
+			TileObjects.getNearest("Sarcophagus").interact("Search");
 		}
-		else if (BarrowsBrothers.DHAROK.getTomb().contains(client.getLocalPlayer()))
-		{
-			if (BarrowsBrothers.DHAROK.getSetup().getSetup().anyUnequipped()) {
-				BarrowsBrothers.DHAROK.getSetup().getSetup().switchGear(50);
-			}
-			if (Static.getClient().hasHintArrow())
-			{
-				final NPC npc = Static.getClient().getHintArrowNpc();
-				if (!Prayers.isEnabled(BarrowsBrothers.DHAROK.getPrayer()) && npc.distanceTo(client.getLocalPlayer()) < 4)
-				{
-					Prayers.toggle(BarrowsBrothers.DHAROK.getPrayer());
+		else {
+			if (BarrowsBrothers.AHRIM.getTomb().contains(client.getLocalPlayer())) {
+				if (BarrowsBrothers.AHRIM.getSetup().getSetup().anyUnequipped()) {
+					BarrowsBrothers.AHRIM.getSetup().getSetup().switchGear(50);
 				}
-				else
-				{
-					Prayers.disableAll();
-				}
-				if (client.getLocalPlayer().isIdle()) {
-					if (BarrowsBrothers.DHAROK.getKilledVarbit() <= 0) {
-						npc.interact("Attack");
+				if (Static.getClient().hasHintArrow()) {
+					final NPC npc = Static.getClient().getHintArrowNpc();
+					if (!Prayers.isEnabled(BarrowsBrothers.AHRIM.getPrayer()) && client.getVarbitValue(BarrowsBrothers.AHRIM.getKilledVarbit()) >= 0
+							&& NPCs.getNearest(BarrowsBrothers.AHRIM.getId()).distanceTo(client.getLocalPlayer()) < 4) {
+						Prayers.toggle(BarrowsBrothers.AHRIM.getPrayer());
 					} else {
-						TileObjects.getNearest("Staircase").interact("Climb-up");
-						Prayers.disableAll();
+						//Prayers.disableAll();
+					}
+					if (client.getLocalPlayer().isIdle()) {
+						if (client.getVarbitValue(BarrowsBrothers.AHRIM.getKilledVarbit()) <= 0) {
+							if (NPCs.getNearest(BarrowsBrothers.AHRIM.getId()).distanceTo(client.getLocalPlayer()) < 4) {
+								npc.interact("Attack");
+							} else {
+								TileObjects.getNearest("Sarcophagus").interact("Search");
+							}
+
+						}
+						if (client.getVarbitValue(BarrowsBrothers.AHRIM.getKilledVarbit()) > 0) {
+							TileObjects.getNearest("Staircase").interact("Climb-up");
+							Prayers.disableAll();
+						}
 					}
 				}
-			}
-		}
-		else if (BarrowsBrothers.GUTHAN.getTomb().contains(client.getLocalPlayer()))
-		{
-			if (BarrowsBrothers.GUTHAN.getSetup().getSetup().anyUnequipped()) {
-				BarrowsBrothers.GUTHAN.getSetup().getSetup().switchGear(50);
-			}
-			if (Static.getClient().hasHintArrow())
-			{
-				final NPC npc = Static.getClient().getHintArrowNpc();
-				if (!Prayers.isEnabled(BarrowsBrothers.GUTHAN.getPrayer()) && npc.distanceTo(client.getLocalPlayer()) < 4)
-				{
-					Prayers.toggle(BarrowsBrothers.GUTHAN.getPrayer());
+			} else if (BarrowsBrothers.DHAROK.getTomb().contains(client.getLocalPlayer())) {
+				if (BarrowsBrothers.DHAROK.getSetup().getSetup().anyUnequipped()) {
+					BarrowsBrothers.DHAROK.getSetup().getSetup().switchGear(50);
+					print("Gear switch DHAR");
 				}
-				else
-				{
-					Prayers.disableAll();
-				}
-				if (client.getLocalPlayer().isIdle()) {
-					if (BarrowsBrothers.GUTHAN.getKilledVarbit() <= 0) {
-						npc.interact("Attack");
-					} else {
-						TileObjects.getNearest("Staircase").interact("Climb-up");
-						Prayers.disableAll();
+				if (Static.getClient().hasHintArrow()) {
+
+					final NPC npc = Static.getClient().getHintArrowNpc();
+
+					if (!Prayers.isEnabled(BarrowsBrothers.DHAROK.getPrayer()) && npc.distanceTo(client.getLocalPlayer()) < 4) {
+						Prayers.toggle(BarrowsBrothers.DHAROK.getPrayer());
+						print("Enable prayer DHAR");
+					}
+					if (client.getLocalPlayer().isIdle()) {
+						if (client.getVarbitValue(BarrowsBrothers.DHAROK.getKilledVarbit()) == 0) {
+							if (NPCs.getNearest(BarrowsBrothers.DHAROK.getId()).distanceTo(client.getLocalPlayer()) < 4) {
+								print("Attack DHAR");
+								npc.interact("Attack");
+							}
+						} else if (client.getVarbitValue(BarrowsBrothers.DHAROK.getKilledVarbit()) > 0) {
+							TileObjects.getNearest("Staircase").interact("Climb-up");
+							Prayers.disableAll();
+						}
 					}
 				}
-			}
-		}
-		else if (BarrowsBrothers.KARIL.getTomb().contains(client.getLocalPlayer()))
-		{
-			if (BarrowsBrothers.KARIL.getSetup().getSetup().anyUnequipped()) {
-				BarrowsBrothers.KARIL.getSetup().getSetup().switchGear(50);
-			}
-			if (Static.getClient().hasHintArrow())
-			{
-				final NPC npc = Static.getClient().getHintArrowNpc();
-				if (!Prayers.isEnabled(BarrowsBrothers.KARIL.getPrayer()) && npc.distanceTo(client.getLocalPlayer()) < 4)
-				{
-					Prayers.toggle(BarrowsBrothers.KARIL.getPrayer());
+			} else if (BarrowsBrothers.GUTHAN.getTomb().contains(client.getLocalPlayer())) {
+				if (BarrowsBrothers.GUTHAN.getSetup().getSetup().anyUnequipped()) {
+					BarrowsBrothers.GUTHAN.getSetup().getSetup().switchGear(50);
 				}
-				else
-				{
-					Prayers.disableAll();
-				}
-				if (client.getLocalPlayer().isIdle()) {
-					if (BarrowsBrothers.KARIL.getKilledVarbit() <= 0) {
-						npc.interact("Attack");
+				if (Static.getClient().hasHintArrow()) {
+					final NPC npc = Static.getClient().getHintArrowNpc();
+					if (!Prayers.isEnabled(BarrowsBrothers.GUTHAN.getPrayer()) && client.getVarbitValue(BarrowsBrothers.GUTHAN.getKilledVarbit()) >= 0
+							&& NPCs.getNearest(BarrowsBrothers.GUTHAN.getId()).distanceTo(client.getLocalPlayer()) < 4) {
+						Prayers.toggle(BarrowsBrothers.GUTHAN.getPrayer());
 					} else {
-						TileObjects.getNearest("Staircase").interact("Climb-up");
-						Prayers.disableAll();
+						//Prayers.disableAll();
+					}
+					if (client.getLocalPlayer().isIdle()) {
+						if (client.getVarbitValue(BarrowsBrothers.GUTHAN.getKilledVarbit()) <= 0) {
+							if (NPCs.getNearest(BarrowsBrothers.GUTHAN.getId()).distanceTo(client.getLocalPlayer()) < 4) {
+								npc.interact("Attack");
+							} else {
+								TileObjects.getNearest("Sarcophagus").interact("Search");
+							}
+
+						}
+						if (client.getVarbitValue(BarrowsBrothers.GUTHAN.getKilledVarbit()) > 0) {
+							TileObjects.getNearest("Staircase").interact("Climb-up");
+							Prayers.disableAll();
+						}
 					}
 				}
-			}
-		}
-		else if (BarrowsBrothers.TORAG.getTomb().contains(client.getLocalPlayer()))
-		{
-			if (BarrowsBrothers.TORAG.getSetup().getSetup().anyUnequipped()) {
-				BarrowsBrothers.TORAG.getSetup().getSetup().switchGear(50);
-			}
-			if (Static.getClient().hasHintArrow())
-			{
-				final NPC npc = Static.getClient().getHintArrowNpc();
-				if (!Prayers.isEnabled(BarrowsBrothers.TORAG.getPrayer()) && npc.distanceTo(client.getLocalPlayer()) < 4)
-				{
-					Prayers.toggle(BarrowsBrothers.TORAG.getPrayer());
+			} else if (BarrowsBrothers.KARIL.getTomb().contains(client.getLocalPlayer())) {
+				if (BarrowsBrothers.KARIL.getSetup().getSetup().anyUnequipped()) {
+					BarrowsBrothers.KARIL.getSetup().getSetup().switchGear(50);
 				}
-				else
-				{
-					Prayers.disableAll();
-				}
-				if (client.getLocalPlayer().isIdle()) {
-					if (BarrowsBrothers.TORAG.getKilledVarbit() <= 0) {
-						npc.interact("Attack");
+				if (Static.getClient().hasHintArrow()) {
+					final NPC npc = Static.getClient().getHintArrowNpc();
+					if (!Prayers.isEnabled(BarrowsBrothers.KARIL.getPrayer()) && client.getVarbitValue(BarrowsBrothers.KARIL.getKilledVarbit()) >= 0
+							&& NPCs.getNearest(BarrowsBrothers.KARIL.getId()).distanceTo(client.getLocalPlayer()) < 4) {
+						Prayers.toggle(BarrowsBrothers.KARIL.getPrayer());
 					} else {
-						TileObjects.getNearest("Staircase").interact("Climb-up");
-						Prayers.disableAll();
+						//Prayers.disableAll();
+					}
+					if (client.getLocalPlayer().isIdle()) {
+						if (client.getVarbitValue(BarrowsBrothers.KARIL.getKilledVarbit()) <= 0) {
+							if (NPCs.getNearest(BarrowsBrothers.KARIL.getId()).distanceTo(client.getLocalPlayer()) < 4) {
+								npc.interact("Attack");
+							} else {
+								TileObjects.getNearest("Sarcophagus").interact("Search");
+							}
+
+						}
+						if (client.getVarbitValue(BarrowsBrothers.KARIL.getKilledVarbit()) > 0) {
+							TileObjects.getNearest("Staircase").interact("Climb-up");
+							Prayers.disableAll();
+						}
 					}
 				}
-			}
-		}
-		else if (BarrowsBrothers.VERAC.getTomb().contains(client.getLocalPlayer()))
-		{
-			if (BarrowsBrothers.VERAC.getSetup().getSetup().anyUnequipped()) {
-				BarrowsBrothers.VERAC.getSetup().getSetup().switchGear(50);
-			}
-			if (Static.getClient().hasHintArrow())
-			{
-				final NPC npc = Static.getClient().getHintArrowNpc();
-				if (!Prayers.isEnabled(BarrowsBrothers.VERAC.getPrayer()) && npc.distanceTo(client.getLocalPlayer()) < 4)
-				{
-					Prayers.toggle(BarrowsBrothers.VERAC.getPrayer());
+			} else if (BarrowsBrothers.TORAG.getTomb().contains(client.getLocalPlayer())) {
+				if (BarrowsBrothers.TORAG.getSetup().getSetup().anyUnequipped()) {
+					BarrowsBrothers.TORAG.getSetup().getSetup().switchGear(50);
 				}
-				if (client.getLocalPlayer().isIdle()) {
-					if (BarrowsBrothers.VERAC.getKilledVarbit() <= 0) {
-						npc.interact("Attack");
+				if (Static.getClient().hasHintArrow()) {
+					final NPC npc = Static.getClient().getHintArrowNpc();
+					if (!Prayers.isEnabled(BarrowsBrothers.TORAG.getPrayer()) && client.getVarbitValue(BarrowsBrothers.TORAG.getKilledVarbit()) >= 0
+							&& NPCs.getNearest(BarrowsBrothers.TORAG.getId()).distanceTo(client.getLocalPlayer()) < 4) {
+						Prayers.toggle(BarrowsBrothers.TORAG.getPrayer());
 					} else {
-						TileObjects.getNearest("Staircase").interact("Climb-up");
-						Prayers.disableAll();
+						//Prayers.disableAll();
+					}
+					if (client.getLocalPlayer().isIdle()) {
+						if (client.getVarbitValue(BarrowsBrothers.TORAG.getKilledVarbit()) <= 0) {
+							if (NPCs.getNearest(BarrowsBrothers.TORAG.getId()).distanceTo(client.getLocalPlayer()) < 4) {
+								npc.interact("Attack");
+							} else {
+								TileObjects.getNearest("Sarcophagus").interact("Search");
+							}
+
+						}
+						if (client.getVarbitValue(BarrowsBrothers.TORAG.getKilledVarbit()) > 0) {
+							TileObjects.getNearest("Staircase").interact("Climb-up");
+							Prayers.disableAll();
+						}
+					}
+				}
+			} else if (BarrowsBrothers.VERAC.getTomb().contains(client.getLocalPlayer())) {
+				if (BarrowsBrothers.VERAC.getSetup().getSetup().anyUnequipped()) {
+					BarrowsBrothers.VERAC.getSetup().getSetup().switchGear(50);
+				}
+				if (Static.getClient().hasHintArrow()) {
+					final NPC npc = Static.getClient().getHintArrowNpc();
+					if (!Prayers.isEnabled(BarrowsBrothers.VERAC.getPrayer()) && client.getVarbitValue(BarrowsBrothers.VERAC.getKilledVarbit()) >= 0
+							&& NPCs.getNearest(BarrowsBrothers.VERAC.getId()).distanceTo(client.getLocalPlayer()) < 4) {
+						Prayers.toggle(BarrowsBrothers.VERAC.getPrayer());
+					}
+					if (client.getLocalPlayer().isIdle()) {
+						if (client.getVarbitValue(BarrowsBrothers.VERAC.getKilledVarbit()) <= 0) {
+							if (NPCs.getNearest(BarrowsBrothers.VERAC.getId()).distanceTo(client.getLocalPlayer()) < 4) {
+								npc.interact("Attack");
+							} else {
+								TileObjects.getNearest("Sarcophagus").interact("Search");
+							}
+
+						}
+						if (client.getVarbitValue(BarrowsBrothers.VERAC.getKilledVarbit()) > 0) {
+							TileObjects.getNearest("Staircase").interact("Climb-up");
+							Prayers.disableAll();
+						}
 					}
 				}
 			}
@@ -408,6 +548,57 @@ public class GoonBarrowsPlugin extends Plugin
 	private void teleHome()
 	{
 		SpellBook.Standard.TELEPORT_TO_HOUSE.cast();
+	}
+
+	private BarrowsBrothers getBrothers()
+	{
+		if (Static.getClient().hasHintArrow())
+		{
+			NPC npc = Static.getClient().getHintArrowNpc();
+			if (npc != null)
+			{
+				int npc_id = npc.getId();
+
+				if (npc_id == BarrowsBrothers.AHRIM.getId())
+				{
+					return BarrowsBrothers.AHRIM;
+				}
+				else if (npc_id == BarrowsBrothers.KARIL.getId())
+				{
+					return BarrowsBrothers.KARIL;
+				}
+				else if (npc_id == BarrowsBrothers.GUTHAN.getId())
+				{
+					return BarrowsBrothers.GUTHAN;
+				}
+				else if (npc_id == BarrowsBrothers.DHAROK.getId())
+				{
+					return BarrowsBrothers.DHAROK;
+				}
+				else if (npc_id == BarrowsBrothers.TORAG.getId())
+				{
+					return BarrowsBrothers.TORAG;
+				}
+				else if (npc_id == BarrowsBrothers.VERAC.getId())
+				{
+					return BarrowsBrothers.VERAC;
+				}
+			}
+		}
+		return null;
+	}
+
+	private void print(String msg)
+	{
+		final ChatMessageBuilder message = new ChatMessageBuilder()
+				.append(ChatColorType.HIGHLIGHT)
+				.append(msg)
+				.append(ChatColorType.NORMAL);
+		chatMessageManager.queue(QueuedMessage.builder()
+						.type(ChatMessageType.ITEM_EXAMINE)
+						.runeLiteFormattedMessage(message.build())
+				.build());
+
 	}
 
 }
