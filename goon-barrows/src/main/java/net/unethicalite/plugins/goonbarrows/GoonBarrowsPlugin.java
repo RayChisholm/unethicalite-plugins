@@ -18,18 +18,15 @@ import net.runelite.client.config.ConfigManager;
 import net.runelite.client.eventbus.Subscribe;
 import net.runelite.client.events.ConfigChanged;
 import net.runelite.client.input.KeyManager;
-import net.runelite.client.menus.WidgetMenuOption;
 import net.runelite.client.plugins.Plugin;
 import net.runelite.client.plugins.PluginDescriptor;
 import net.runelite.client.ui.overlay.OverlayManager;
 import net.runelite.client.util.HotkeyListener;
-import net.runelite.client.util.QuantityFormatter;
 import net.unethicalite.api.commons.Time;
 import net.unethicalite.api.entities.NPCs;
 import net.unethicalite.api.entities.TileObjects;
 import net.unethicalite.api.game.Combat;
 import net.unethicalite.api.game.GameThread;
-import net.unethicalite.api.input.Mouse;
 import net.unethicalite.api.items.Equipment;
 import net.unethicalite.api.items.Inventory;
 import net.unethicalite.api.magic.SpellBook;
@@ -144,7 +141,7 @@ public class GoonBarrowsPlugin extends Plugin
 		keyManager.registerKeyListener(hotkeyListenerThree);
 
 		updateGear();
-		bros = getBrothers();
+		bros = getVisibleBrother();
 
 	}
 
@@ -170,15 +167,27 @@ public class GoonBarrowsPlugin extends Plugin
 		{
 			customSleep += 3;
 		}
-		if (client.getLocalPlayer().getPlane() == 0 && !Constants.TUNNEL_AREA.contains(client.getLocalPlayer()))
+
+		bros = getVisibleBrother();
+		if (bros != null)
+		{
+			if (!Prayers.isEnabled(bros.getPrayer()) && Prayers.getPoints() > 0)
+			{
+				Prayers.toggle(bros.getPrayer());
+			}
+			if (bros.getSetup().getSetup().anyUnequipped())
+			{
+				bros.getSetup().getSetup().switchGear(50);
+			}
+		}
+		else if (Prayers.anyActive())
 		{
 			Prayers.disableAll();
 		}
-		bros = getBrothers();
 		eatFood();
 		drinkPrayer();
-		//inTombGearSwitch();
-		tombHandler();
+		handleTombs();
+		//tombHandler();
 	}
 
 	@Subscribe
@@ -257,26 +266,18 @@ public class GoonBarrowsPlugin extends Plugin
 	private void handleOneTomb(BarrowsBrothers b)
 	{
 		if (b.getTomb().contains(client.getLocalPlayer())) {
-			if (b.getSetup().getSetup().anyUnequipped()) {
-				b.getSetup().getSetup().switchGear(50);
-				print("Gear switch " + b.getName());
-			}
 
 			if (Static.getClient().hasHintArrow()) {
 
 				final NPC npc = Static.getClient().getHintArrowNpc();
 
-				if (!Prayers.isEnabled(b.getPrayer()) && npc.distanceTo(client.getLocalPlayer()) < 4 && Prayers.getPoints() > 1) {
-					Prayers.toggle(b.getPrayer());
-					print("Enable prayer " + b.getName());
-				}
 				if (client.getLocalPlayer().isIdle()) {
-					if (client.getVarbitValue(b.getKilledVarbit()) == 0) {
+					if (!b.isDead()) {
 						if (NPCs.getNearest(b.getId()).distanceTo(client.getLocalPlayer()) < 4) {
 							print("Attack " + b.getName());
 							npc.interact("Attack");
 						}
-					} else if (client.getVarbitValue(b.getKilledVarbit()) > 0) {
+					} else if (b.isDead()) {
 						TileObjects.getNearest("Staircase").interact("Climb-up");
 						Prayers.disableAll();
 					}
@@ -293,12 +294,32 @@ public class GoonBarrowsPlugin extends Plugin
 		}
 		else
 		{
-			handleOneTomb(BarrowsBrothers.KARIL);
+			/*handleOneTomb(BarrowsBrothers.KARIL);
 			handleOneTomb(BarrowsBrothers.AHRIM);
 			handleOneTomb(BarrowsBrothers.DHAROK);
 			handleOneTomb(BarrowsBrothers.GUTHAN);
 			handleOneTomb(BarrowsBrothers.TORAG);
-			handleOneTomb(BarrowsBrothers.VERAC);
+			handleOneTomb(BarrowsBrothers.VERAC);*/
+		}
+	}
+
+	private void handleTombs()
+	{
+		if (BarrowsBrothers.getBrotherCrypt() != null)
+		{
+			if (!BarrowsBrothers.getBrotherCrypt().isDead() && getVisibleBrother() == null)
+			{
+				TileObjects.getNearest("Sarcophagus").interact("Search");
+			}
+			else if (getVisibleBrother() != null && client.getLocalPlayer().isIdle() && !BarrowsBrothers.getBrotherCrypt().isDead())
+			{
+				NPC npc = Static.getClient().getHintArrowNpc();
+				npc.interact("Attack");
+			}
+			else if (getVisibleBrother() == null && BarrowsBrothers.getBrotherCrypt().isDead())
+			{
+				TileObjects.getNearest("Staircase").interact("Climb-up");
+			}
 		}
 	}
 
@@ -355,7 +376,7 @@ public class GoonBarrowsPlugin extends Plugin
 		SpellBook.Standard.TELEPORT_TO_HOUSE.cast();
 	}
 
-	private BarrowsBrothers getBrothers()
+	private BarrowsBrothers getVisibleBrother()
 	{
 		if (Static.getClient().hasHintArrow())
 		{

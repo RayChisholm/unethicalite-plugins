@@ -7,6 +7,8 @@ import net.runelite.api.Varbits;
 import net.runelite.api.annotations.Varbit;
 import net.runelite.api.coords.WorldArea;
 import net.runelite.api.coords.WorldPoint;
+import net.unethicalite.api.entities.Players;
+import net.unethicalite.api.game.Vars;
 
 @RequiredArgsConstructor
 @Getter
@@ -56,4 +58,26 @@ public enum BarrowsBrothers {
     private final int id;
     @Getter(onMethod_ = {@Varbit})
     private final int killedVarbit;
+
+    public boolean isDead()
+    {
+        return Vars.getBit(killedVarbit) > 0;
+    }
+
+    public static BarrowsBrothers getBrotherCrypt()
+    {
+        if (Players.getLocal().getWorldLocation().getPlane() != 3)
+        {
+            return null;
+        }
+
+        for (BarrowsBrothers bro : BarrowsBrothers.values())
+        {
+            if (bro.tomb.contains(Players.getLocal()))
+            {
+                return bro;
+            }
+        }
+        return null;
+    }
 }
