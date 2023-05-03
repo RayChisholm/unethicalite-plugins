@@ -577,6 +577,10 @@ public class GoonBarrowsPlugin extends Plugin
 		{
 			if (Inventory.getFirst(ItemID.COOKED_KARAMBWAN) != null) {
 				Inventory.getFirst(ItemID.COOKED_KARAMBWAN).interact("Eat");
+				if (Static.getClient().getHintArrowNpc() != null)
+				{
+					Static.getClient().getHintArrowNpc().interact("Attack");
+				}
 			}
 			else if (Combat.getCurrentHealth() < 40)
 			{
@@ -644,7 +648,7 @@ public class GoonBarrowsPlugin extends Plugin
 			else if (!Inventory.contains((i) -> Constants.PRAYER_RESTORE_POTION_IDS.contains(i.getId()))
 					|| (!Inventory.contains(Predicates.ids(Constants.DUELING_RING_IDS))
 					&& !Equipment.contains(Predicates.ids(Constants.DUELING_RING_IDS)))
-					|| Inventory.getCount(ItemID.COOKED_KARAMBWAN) < 9
+					|| Inventory.getCount(ItemID.COOKED_KARAMBWAN) < 10
 					|| Inventory.contains(i -> i.getName().contains("Clue scroll"))
 					|| Inventory.contains(Predicates.ids(Constants.BARROWS_UNDEGRADED_IDS))
 					|| Inventory.contains(Predicates.ids(Constants.BARROWS_BASIC_LOOT_IDS)))
@@ -679,7 +683,7 @@ public class GoonBarrowsPlugin extends Plugin
 						}
 					}
 
-					int foodQuantity = 10 - Inventory.getCount(ItemID.COOKED_KARAMBWAN);
+					int foodQuantity = 11 - Inventory.getCount(ItemID.COOKED_KARAMBWAN);
 					if (foodQuantity > 0) {
 						if (Bank.getCount(true, ItemID.COOKED_KARAMBWAN) < foodQuantity) {
 							print("Out of food. Stopping plugin.");
