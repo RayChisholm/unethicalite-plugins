@@ -24,9 +24,11 @@ import net.runelite.client.plugins.PluginDescriptor;
 import net.runelite.client.ui.overlay.OverlayManager;
 import net.runelite.client.util.HotkeyListener;
 import net.runelite.client.util.QuantityFormatter;
+import net.unethicalite.api.commons.Time;
 import net.unethicalite.api.entities.NPCs;
 import net.unethicalite.api.entities.TileObjects;
 import net.unethicalite.api.game.Combat;
+import net.unethicalite.api.game.GameThread;
 import net.unethicalite.api.input.Mouse;
 import net.unethicalite.api.items.Equipment;
 import net.unethicalite.api.items.Inventory;
@@ -45,6 +47,7 @@ import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.StringSelection;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @PluginDescriptor(name = "Goon Barrows", enabledByDefault = false)
@@ -188,22 +191,17 @@ public class GoonBarrowsPlugin extends Plugin
 			final int answer = client.getWidget(WidgetInfo.BARROWS_FIRST_PUZZLE).getModelId() - 3;
 			puzzleAnswer = null;
 
-			for (WidgetInfo puzzleNode : Constants.POSSIBLE_SOLUTIONS)
+			for (Map.Entry<WidgetInfo, WidgetInfo> entry : Constants.POSSIBLE_SOLUTIONS.entrySet())
 			{
-				final Widget widgetToCheck = client.getWidget(puzzleNode);
-
+				Widget widgetToCheck = Widgets.get(entry.getKey());
 				if (widgetToCheck != null && widgetToCheck.getModelId() == answer)
 				{
-					puzzleAnswer = client.getWidget(puzzleNode);
-					if (puzzleAnswer.isVisible())
-					{
-						print(Arrays.toString(puzzleAnswer.getActions()));
-						print(Arrays.toString(client.getWidget(puzzleAnswer.getModelId()).getActions()));
-					}
-					break;
+					puzzleAnswer = Widgets.get(entry.getValue());
 				}
 			}
-
+			print("Trying to invoke");
+			GameThread.invoke(() -> puzzleAnswer.interact("Select"));
+			Time.sleepTick();
 		}
 	}
 
@@ -268,7 +266,7 @@ public class GoonBarrowsPlugin extends Plugin
 
 				final NPC npc = Static.getClient().getHintArrowNpc();
 
-				if (!Prayers.isEnabled(b.getPrayer()) && npc.distanceTo(client.getLocalPlayer()) < 4) {
+				if (!Prayers.isEnabled(b.getPrayer()) && npc.distanceTo(client.getLocalPlayer()) < 4 && Prayers.getPoints() > 1) {
 					Prayers.toggle(b.getPrayer());
 					print("Enable prayer " + b.getName());
 				}
@@ -310,6 +308,10 @@ public class GoonBarrowsPlugin extends Plugin
 		{
 			if (Inventory.getFirst(ItemID.COOKED_KARAMBWAN) != null) {
 				Inventory.getFirst(ItemID.COOKED_KARAMBWAN).interact("Eat");
+			}
+			else
+			{
+				teleHome();
 			}
 		}
 	}
