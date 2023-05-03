@@ -758,6 +758,8 @@ public class GoonBarrowsPlugin extends Plugin
 			if (Equipment.fromSlot(EquipmentInventorySlot.RING) == null) {
 				Inventory.getFirst(Predicates.ids(Constants.DUELING_RING_IDS)).interact("Wear");
 			}
+			newRun = true;
+			finished = false;
 			TileObjects.getNearest(37591).interact("Enter");
 		}
 	}
