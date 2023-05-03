@@ -461,6 +461,15 @@ public class GoonBarrowsPlugin extends Plugin
 			if (!Prayers.isEnabled(getVisibleBrother().getPrayer()) && Prayers.getPoints() > 0)
 			{
 				Prayers.toggle(getVisibleBrother().getPrayer());
+				if (getVisibleBrother() == BarrowsBrothers.KARIL)
+				{
+					Prayers.toggle(Prayer.PIETY);
+				}
+				else if (getVisibleBrother() == BarrowsBrothers.AHRIM)
+				{
+					Prayers.toggle(Prayer.EAGLE_EYE);
+				}
+
 			}
 			if (getVisibleBrother().getSetup().getSetup().anyUnequipped())
 			{
