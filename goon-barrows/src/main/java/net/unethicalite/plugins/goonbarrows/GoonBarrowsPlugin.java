@@ -25,11 +25,15 @@ import net.runelite.client.plugins.Plugin;
 import net.runelite.client.plugins.PluginDescriptor;
 import net.runelite.client.ui.overlay.OverlayManager;
 import net.runelite.client.util.HotkeyListener;
+import net.unethicalite.api.commons.Predicates;
 import net.unethicalite.api.commons.Time;
 import net.unethicalite.api.coords.RectangularArea;
+import net.unethicalite.api.entities.Players;
 import net.unethicalite.api.entities.TileObjects;
 import net.unethicalite.api.game.Combat;
 import net.unethicalite.api.game.GameThread;
+import net.unethicalite.api.game.Skills;
+import net.unethicalite.api.items.Bank;
 import net.unethicalite.api.items.Equipment;
 import net.unethicalite.api.items.Inventory;
 import net.unethicalite.api.magic.SpellBook;
@@ -42,6 +46,7 @@ import net.unethicalite.plugins.goonbarrows.data.Constants;
 import net.unethicalite.plugins.goonbarrows.data.Room;
 import net.unethicalite.plugins.goonbarrows.helpers.BarrowsBrothers;
 import net.unethicalite.plugins.goonbarrows.helpers.GearSetup;
+import net.unethicalite.plugins.goonbarrows.helpers.Interact;
 import net.unethicalite.plugins.goonbarrows.helpers.Setups;
 import org.pf4j.Extension;
 
@@ -66,6 +71,7 @@ public class GoonBarrowsPlugin extends Plugin
 	private Widget puzzleAnswer;
 	public int customSleep;
 	private final LinkedList<BarrowsBrothers> killOrder = new LinkedList<>();
+	private boolean finished;
 
 	@Getter
 	private BarrowsBrothers currentBrother;
@@ -156,6 +162,7 @@ public class GoonBarrowsPlugin extends Plugin
 		keyManager.registerKeyListener(hotkeyListenerThree);
 
 		newRun = true;
+		finished = false;
 		updateGear();
 		resetBarrows();
 	}
@@ -187,12 +194,13 @@ public class GoonBarrowsPlugin extends Plugin
 		tunnelGearHandler();
 		traverseTunnel();
 		handleTreasureRoom();
+		feroxHandler();
+		useBarrowsPortal();
 	}
 
 	@Subscribe
 	public void onWidgetLoaded(WidgetLoaded event)
 	{
-		//print("Widget loaded " + event.getGroupId());
 		if (event.getGroupId() == WidgetID.BARROWS_PUZZLE_GROUP_ID)
 		{
 			//print("Puzzle seen");
@@ -210,6 +218,11 @@ public class GoonBarrowsPlugin extends Plugin
 			//print("Trying to invoke");
 			GameThread.invoke(() -> puzzleAnswer.interact("Select"));
 			Time.sleepTick();
+		}
+
+		if(event.getGroupId() == WidgetID.BARROWS_REWARD_GROUP_ID)
+		{
+			feroxTele();
 		}
 	}
 
@@ -311,7 +324,14 @@ public class GoonBarrowsPlugin extends Plugin
 			}
 			if (TileObjects.getNearest("Chest").hasAction("Search") && !onLastBrother())
 			{
-				GameThread.invoke(() -> TileObjects.getNearest("Chest").interact("Search"));
+				if (Widgets.isVisible(Widgets.get(WidgetID.BARROWS_REWARD_GROUP_ID, 0)))
+				{
+					finished = true;
+				}
+				else
+				{
+					GameThread.invoke(() -> TileObjects.getNearest("Chest").interact("Search"));
+				}
 			}
 
 		}
@@ -553,6 +573,86 @@ public class GoonBarrowsPlugin extends Plugin
 		SpellBook.Standard.TELEPORT_TO_HOUSE.cast();
 	}
 
+	private void feroxTele()
+	{
+		Interact.interactWithInventoryOrEquipment(Constants.DUELING_RING_IDS, "Rub", "Ferox Enclave", 3);
+	}
+
+	private void feroxHandler()
+	{
+		if (Constants.FEROX_ENCLAVE.contains(client.getLocalPlayer()))
+		{
+			finished = false;
+			newRun = true;
+			if (Combat.getMissingHealth() > 0 || Prayers.getPoints() < Skills.getLevel(Skill.PRAYER))
+			{
+				TileObjects.getNearest(ObjectID.POOL_OF_REFRESHMENT).interact("Drink");
+			}
+
+			else if (!Inventory.contains((i) -> Constants.PRAYER_RESTORE_POTION_IDS.contains(i.getId()))
+					|| (!Inventory.contains(Predicates.ids(Constants.DUELING_RING_IDS))
+					&& !Equipment.contains(Predicates.ids(Constants.DUELING_RING_IDS)))
+					|| Inventory.getCount(ItemID.COOKED_KARAMBWAN) < 5
+					|| Inventory.contains(i -> i.getName().contains("Clue scroll"))
+					|| Inventory.contains(Predicates.ids(Constants.BARROWS_UNDEGRADED_IDS)))
+			{
+
+				TileObjects.getNearest("Bank chest").interact("Use");
+
+				if (Bank.isOpen())
+				{
+					Inventory.getAll(Predicates.ids(Constants.BARROWS_UNDEGRADED_IDS))
+							.forEach(i -> Bank.depositAll(i.getId()));
+
+					Inventory.getAll(i -> i.getName().contains("Clue scroll"))
+							.forEach(i -> Bank.depositAll(i.getId()));
+
+					Inventory.getAll(Predicates.ids(Constants.BARROWS_BASIC_LOOT_IDS))
+							.forEach(i -> Bank.depositAll(i.getId()));
+
+					if (!Inventory.contains((i) -> Constants.PRAYER_RESTORE_POTION_IDS.contains(i.getId()))) {
+						if (Bank.contains(ItemID.PRAYER_POTION4)) {
+							Bank.withdraw(ItemID.PRAYER_POTION4, 1, Bank.WithdrawMode.ITEM);
+						} else if (Bank.contains(ItemID.PRAYER_POTION3)) {
+							Bank.withdraw(ItemID.PRAYER_POTION3, 1, Bank.WithdrawMode.ITEM);
+						} else if (Bank.contains(ItemID.SUPER_RESTORE4)) {
+							Bank.withdraw(ItemID.SUPER_RESTORE4, 1, Bank.WithdrawMode.ITEM);
+						} else if (Bank.contains(ItemID.SUPER_RESTORE3)) {
+							Bank.withdraw(ItemID.SUPER_RESTORE3, 1, Bank.WithdrawMode.ITEM);
+						} else {
+							print("No more 3 or 4 dose prayer or super restore potions.");
+						}
+					}
+
+					int foodQuantity = 5 - Inventory.getCount(ItemID.COOKED_KARAMBWAN);
+					if (foodQuantity > 0) {
+						if (Bank.getCount(true, ItemID.COOKED_KARAMBWAN) < foodQuantity) {
+							print("Out of food. Stopping plugin.");
+						}
+						Bank.withdraw(ItemID.COOKED_KARAMBWAN, foodQuantity, Bank.WithdrawMode.ITEM);
+					}
+
+					if (!Inventory.contains(Predicates.ids(Constants.DUELING_RING_IDS))
+							&& !Equipment.contains(Predicates.ids(Constants.DUELING_RING_IDS))) {
+						if (!Bank.contains(Predicates.ids(Constants.DUELING_RING_IDS))) {
+							print("Out of rings of dueling. Stopping plugin.");
+						}
+
+						Bank.withdraw(Predicates.ids(Constants.DUELING_RING_IDS), 1, Bank.WithdrawMode.ITEM);
+
+						if (Equipment.fromSlot(EquipmentInventorySlot.RING) == null) {
+								Inventory.getFirst(Predicates.ids(Constants.DUELING_RING_IDS)).interact("Wear");
+						}
+					}
+				}
+			}
+			else
+			{
+				teleHome();
+			}
+		}
+	}
+
 	public BarrowsBrothers getVisibleBrother()
 	{
 		if (Static.getClient().hasHintArrow())
@@ -589,6 +689,14 @@ public class GoonBarrowsPlugin extends Plugin
 			}
 		}
 		return null;
+	}
+
+	private void useBarrowsPortal()
+	{
+		if (Static.getClient().isInInstancedRegion())
+		{
+			TileObjects.getNearest(37591).interact("Use");
+		}
 	}
 
 	private void print(String msg)
