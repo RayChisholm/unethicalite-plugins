@@ -291,6 +291,7 @@ public class GoonBarrowsPlugin extends Plugin
 		{
 			bro.setInTunnel(false);
 		}
+		killOrder.clear();
 		tunnelPath = null;
 		newRun = true;
 		finished = false;
