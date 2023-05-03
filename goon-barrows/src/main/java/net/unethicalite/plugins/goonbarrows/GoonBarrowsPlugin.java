@@ -597,7 +597,9 @@ public class GoonBarrowsPlugin extends Plugin
 					|| Inventory.contains(Predicates.ids(Constants.BARROWS_UNDEGRADED_IDS)))
 			{
 
-				TileObjects.getNearest("Bank chest").interact("Use");
+				if (!Bank.isOpen()) {
+					TileObjects.getNearest("Bank chest").interact("Use");
+				}
 
 				if (Bank.isOpen())
 				{
@@ -695,7 +697,10 @@ public class GoonBarrowsPlugin extends Plugin
 	{
 		if (Static.getClient().isInInstancedRegion())
 		{
-			TileObjects.getNearest(37591).interact("Use");
+			if (Equipment.fromSlot(EquipmentInventorySlot.RING) == null) {
+				Inventory.getFirst(Predicates.ids(Constants.DUELING_RING_IDS)).interact("Wear");
+			}
+			TileObjects.getNearest(37591).interact("Enter");
 		}
 	}
 
