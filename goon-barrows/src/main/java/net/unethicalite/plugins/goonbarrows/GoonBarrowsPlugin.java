@@ -20,6 +20,7 @@ import net.runelite.client.chat.QueuedMessage;
 import net.runelite.client.config.ConfigManager;
 import net.runelite.client.eventbus.Subscribe;
 import net.runelite.client.events.ConfigChanged;
+import net.runelite.client.game.ItemManager;
 import net.runelite.client.input.KeyManager;
 import net.runelite.client.plugins.Plugin;
 import net.runelite.client.plugins.PluginDescriptor;
@@ -76,6 +77,7 @@ public class GoonBarrowsPlugin extends Plugin
 	private final LinkedList<BarrowsBrothers> killOrder = new LinkedList<>();
 	private boolean finished;
 	public int CHESTS_CHECKED;
+	public long chestPrice = 0;
 
 	@Getter
 	private BarrowsBrothers currentBrother;
@@ -87,6 +89,8 @@ public class GoonBarrowsPlugin extends Plugin
 
 	@Inject
 	private ChatMessageManager chatMessageManager;
+	@Inject
+	private ItemManager itemManager;
 
 	@Inject
 	private net.unethicalite.plugins.goonbarrows.GoonBarrowsConfig config;
@@ -228,6 +232,19 @@ public class GoonBarrowsPlugin extends Plugin
 		if(event.getGroupId() == WidgetID.BARROWS_REWARD_GROUP_ID)
 		{
 			CHESTS_CHECKED++;
+			ItemContainer barrowsRewardContainer = client.getItemContainer(InventoryID.BARROWS_REWARD);
+			if (barrowsRewardContainer == null)
+			{
+				return;
+			}
+
+			Item[] items = barrowsRewardContainer.getItems();
+
+			for (Item item : items)
+			{
+				long itemStack = (long) itemManager.getItemPrice(item.getId()) * (long) item.getQuantity();
+				chestPrice += itemStack;
+			}
 			feroxTele();
 		}
 	}
@@ -349,8 +366,16 @@ public class GoonBarrowsPlugin extends Plugin
 	{
 		NPC target;
 		target = NPCs.getNearest(n -> n.hasAction("Attack") && Reachable.isInteractable(n));
-		//target = NPCs.getNearest(n -> n.getInteracting() != null && n.getInteracting().equals(Players.getLocal()));
-		GameThread.invoke(() -> target.interact("Attack"));
+		NPC finalTarget = target;
+		GameThread.invoke(() -> finalTarget.interact("Attack"));
+		target = NPCs.getNearest(n -> n.getInteracting() != null && n.getInteracting().equals(Players.getLocal()));
+		if (target == null || client.getLocalPlayer().isIdle())
+		{
+			print("Nothing to attack here");
+			TileObject door;
+			door = TileObjects.getNearest(o -> o.hasAction("Open") && Reachable.isInteractable(o));
+			door.interact("Open");
+		}
 	}
 
 	private void traverseTunnel()

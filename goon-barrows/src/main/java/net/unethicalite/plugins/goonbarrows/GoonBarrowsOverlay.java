@@ -45,6 +45,11 @@ public class GoonBarrowsOverlay extends OverlayPanel {
                     .build());
 
             panelComponent.getChildren().add(LineComponent.builder()
+                    .left("Profit:")
+                    .right(String.valueOf(plugin.chestPrice % 1000) + "k")
+                    .build());
+
+            panelComponent.getChildren().add(LineComponent.builder()
                     .left("Potential:")
                     .right(String.valueOf(plugin.getPotentialWithLastBrother()))
                     .build());
