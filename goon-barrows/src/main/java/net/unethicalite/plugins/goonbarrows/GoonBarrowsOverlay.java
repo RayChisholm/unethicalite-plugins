@@ -32,37 +32,27 @@ public class GoonBarrowsOverlay extends OverlayPanel {
     public Dimension render(Graphics2D graphics)
     {
         if(client.getGameState().equals(GameState.LOGGED_IN)) {
+            panelComponent.getChildren().clear();
+
             panelComponent.getChildren().add(TitleComponent.builder()
                     .text("Goon Barrows")
                     .color(Color.GREEN)
                     .build());
 
-
-            String brother = "";
-            String status = "";
-            if (plugin.getBros() != null)
-            {
-                brother = plugin.getBros().getName();
-                status = String.valueOf(plugin.getBros().getKilledVarbit());
+            if (plugin.getVisibleBrother() != null) {
+                panelComponent.getChildren().add(LineComponent.builder()
+                        .left("Visible:")
+                        .right(plugin.getVisibleBrother().getName())
+                        .build());
             }
-            else
+
+            if (plugin.getCurrentBrother() != null)
             {
-                brother = "null";
+                panelComponent.getChildren().add(LineComponent.builder()
+                        .left("Current:")
+                        .right(plugin.getCurrentBrother().getName())
+                        .build());
             }
-            panelComponent.getChildren().add(LineComponent.builder()
-                    .left("Bro")
-                    .right(brother)
-                    .build());
-
-            panelComponent.getChildren().add(LineComponent.builder()
-                    .left("Var:")
-                    .right(status)
-                    .build());
-
-            panelComponent.getChildren().add(LineComponent.builder()
-                    .left("Sleeper:")
-                    .right(String.valueOf(plugin.customSleep))
-                    .build());
 
             String name = "";
             if (Static.getClient().getHintArrowNpc() != null)

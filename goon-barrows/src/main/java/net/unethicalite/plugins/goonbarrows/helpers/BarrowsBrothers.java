@@ -2,6 +2,7 @@ package net.unethicalite.plugins.goonbarrows.helpers;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 import net.runelite.api.Prayer;
 import net.runelite.api.Varbits;
 import net.runelite.api.annotations.Varbit;
@@ -59,6 +60,7 @@ public enum BarrowsBrothers {
     @Getter(onMethod_ = {@Varbit})
     private final int killedVarbit;
 
+    @Getter @Setter private boolean inTunnel;
     public boolean isDead()
     {
         return Vars.getBit(killedVarbit) > 0;

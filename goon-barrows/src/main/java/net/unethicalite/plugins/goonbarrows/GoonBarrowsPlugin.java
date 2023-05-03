@@ -25,6 +25,7 @@ import net.runelite.client.util.HotkeyListener;
 import net.unethicalite.api.commons.Time;
 import net.unethicalite.api.entities.NPCs;
 import net.unethicalite.api.entities.TileObjects;
+import net.unethicalite.api.widgets.Dialog;
 import net.unethicalite.api.game.Combat;
 import net.unethicalite.api.game.GameThread;
 import net.unethicalite.api.items.Equipment;
@@ -43,6 +44,7 @@ import java.awt.*;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.StringSelection;
 import java.util.Arrays;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -59,6 +61,10 @@ public class GoonBarrowsPlugin extends Plugin
 	@Getter
 	private Widget puzzleAnswer;
 	public int customSleep;
+	private final LinkedList<BarrowsBrothers> killOrder = new LinkedList<>();
+	@Getter
+	private BarrowsBrothers currentBrother;
+	private boolean newRun;
 
 	@Inject
 	private ChatMessageManager chatMessageManager;
@@ -140,9 +146,9 @@ public class GoonBarrowsPlugin extends Plugin
 		keyManager.registerKeyListener(hotkeyListenerTwo);
 		keyManager.registerKeyListener(hotkeyListenerThree);
 
+		newRun = true;
 		updateGear();
-		bros = getVisibleBrother();
-
+		resetBarrows();
 	}
 
 	@Override
@@ -159,44 +165,24 @@ public class GoonBarrowsPlugin extends Plugin
 	@Subscribe
 	private void onGameTick(GameTick e)
 	{
-		if (customSleep > 0)
-		{
-			customSleep--;
-		}
-		if (client.getLocalPlayer().getAnimation() == Constants.DIG_ANIM)
-		{
-			customSleep += 3;
-		}
+		if (customSleep > 0) { customSleep--; }
 
-		bros = getVisibleBrother();
-		if (bros != null)
-		{
-			if (!Prayers.isEnabled(bros.getPrayer()) && Prayers.getPoints() > 0)
-			{
-				Prayers.toggle(bros.getPrayer());
-			}
-			if (bros.getSetup().getSetup().anyUnequipped())
-			{
-				bros.getSetup().getSetup().switchGear(50);
-			}
-		}
-		else if (Prayers.anyActive())
-		{
-			Prayers.disableAll();
-		}
+		if (newRun) { resetBarrows(); }
+
+		cycleCurrentBrother();
 		eatFood();
 		drinkPrayer();
+		handleBrotherSetups();
 		handleTombs();
-		//tombHandler();
 	}
 
 	@Subscribe
 	public void onWidgetLoaded(WidgetLoaded event)
 	{
-		print("Widget loaded " + event.getGroupId());
+		//print("Widget loaded " + event.getGroupId());
 		if (event.getGroupId() == WidgetID.BARROWS_PUZZLE_GROUP_ID)
 		{
-			print("Puzzle seen");
+			//print("Puzzle seen");
 			final int answer = client.getWidget(WidgetInfo.BARROWS_FIRST_PUZZLE).getModelId() - 3;
 			puzzleAnswer = null;
 
@@ -208,7 +194,7 @@ public class GoonBarrowsPlugin extends Plugin
 					puzzleAnswer = Widgets.get(entry.getValue());
 				}
 			}
-			print("Trying to invoke");
+			//print("Trying to invoke");
 			GameThread.invoke(() -> puzzleAnswer.interact("Select"));
 			Time.sleepTick();
 		}
@@ -240,6 +226,26 @@ public class GoonBarrowsPlugin extends Plugin
 		clipboard.setContents(stringSelection, null);
 	}
 
+	private void buildKillOrder()
+	{
+		killOrder.add(BarrowsBrothers.DHAROK);
+		killOrder.add(BarrowsBrothers.AHRIM);
+		killOrder.add(BarrowsBrothers.KARIL);
+		killOrder.add(BarrowsBrothers.GUTHAN);
+		killOrder.add(BarrowsBrothers.TORAG);
+		killOrder.add(BarrowsBrothers.VERAC);
+	}
+
+	private void resetBarrows()
+	{
+		for (BarrowsBrothers bro : BarrowsBrothers.values())
+		{
+			bro.setInTunnel(false);
+		}
+		newRun = true;
+		buildKillOrder();
+	}
+
 	private void updateGear()
 	{
 		List<String> gearSetupOne = Arrays.stream(config.gearOne().split(","))
@@ -263,52 +269,21 @@ public class GoonBarrowsPlugin extends Plugin
 		Setups.setDefensivePrayerThree(config.defensivePrayerThree());
 	}
 
-	private void handleOneTomb(BarrowsBrothers b)
-	{
-		if (b.getTomb().contains(client.getLocalPlayer())) {
-
-			if (Static.getClient().hasHintArrow()) {
-
-				final NPC npc = Static.getClient().getHintArrowNpc();
-
-				if (client.getLocalPlayer().isIdle()) {
-					if (!b.isDead()) {
-						if (NPCs.getNearest(b.getId()).distanceTo(client.getLocalPlayer()) < 4) {
-							print("Attack " + b.getName());
-							npc.interact("Attack");
-						}
-					} else if (b.isDead()) {
-						TileObjects.getNearest("Staircase").interact("Climb-up");
-						Prayers.disableAll();
-					}
-				}
-			}
-		}
-	}
-
-	private void tombHandler()
-	{
-		if (customSleep > 0)
-		{
-			TileObjects.getNearest("Sarcophagus").interact("Search");
-		}
-		else
-		{
-			/*handleOneTomb(BarrowsBrothers.KARIL);
-			handleOneTomb(BarrowsBrothers.AHRIM);
-			handleOneTomb(BarrowsBrothers.DHAROK);
-			handleOneTomb(BarrowsBrothers.GUTHAN);
-			handleOneTomb(BarrowsBrothers.TORAG);
-			handleOneTomb(BarrowsBrothers.VERAC);*/
-		}
-	}
-
 	private void handleTombs()
 	{
 		if (BarrowsBrothers.getBrotherCrypt() != null)
 		{
 			if (!BarrowsBrothers.getBrotherCrypt().isDead() && getVisibleBrother() == null)
 			{
+				if (Dialog.isOpen())
+				{
+					getCurrentBrother().setInTunnel(true);
+
+					if (onLastBrother())
+					{
+						Dialog.invokeDialog(DialogOption.PLAIN_CONTINUE, DialogOption.CHAT_OPTION_ONE);
+					}
+				}
 				TileObjects.getNearest("Sarcophagus").interact("Search");
 			}
 			else if (getVisibleBrother() != null && client.getLocalPlayer().isIdle() && !BarrowsBrothers.getBrotherCrypt().isDead())
@@ -316,11 +291,76 @@ public class GoonBarrowsPlugin extends Plugin
 				NPC npc = Static.getClient().getHintArrowNpc();
 				npc.interact("Attack");
 			}
-			else if (getVisibleBrother() == null && BarrowsBrothers.getBrotherCrypt().isDead())
+			else if ((getVisibleBrother() == null && BarrowsBrothers.getBrotherCrypt().isDead()) || getVisibleBrother() == null && !onLastBrother())
 			{
 				TileObjects.getNearest("Staircase").interact("Climb-up");
 			}
 		}
+	}
+
+	private void handleBrotherSetups()
+	{
+		if (getVisibleBrother() != null)
+		{
+			if (newRun) { newRun = false; }
+			if (!Prayers.isEnabled(getVisibleBrother().getPrayer()) && Prayers.getPoints() > 0)
+			{
+				Prayers.toggle(getVisibleBrother().getPrayer());
+			}
+			if (getVisibleBrother().getSetup().getSetup().anyUnequipped())
+			{
+				getVisibleBrother().getSetup().getSetup().switchGear(50);
+			}
+		}
+		else if (Prayers.anyActive())
+		{
+			Prayers.disableAll();
+		}
+	}
+
+	private void cycleCurrentBrother()
+	{
+		if (killOrder.isEmpty())
+		{
+			if (currentBrother != null && currentBrother.isDead())
+			{
+				currentBrother = null;
+			}
+
+			if (currentBrother == null)
+			{
+				for (BarrowsBrothers bro : BarrowsBrothers.values())
+				{
+					if (bro.isInTunnel() && !bro.isDead())
+					{
+						currentBrother = bro;
+						break;
+					}
+				}
+			}
+		} else if (currentBrother == null || currentBrother.isDead() || currentBrother.isInTunnel()) {
+			if (newRun && currentBrother == null)
+			{
+				currentBrother = killOrder.poll();
+			}
+			else if (!newRun && currentBrother != null)
+			{
+				currentBrother = killOrder.poll();
+			}
+		}
+	}
+
+	private boolean onLastBrother()
+	{
+		int alive = 0;
+		for (BarrowsBrothers bro : BarrowsBrothers.values())
+		{
+			if (!bro.isDead() && !bro.isInTunnel())
+			{
+				alive++;
+			}
+		}
+		return alive == 1;
 	}
 
 	private void eatFood()
@@ -376,7 +416,7 @@ public class GoonBarrowsPlugin extends Plugin
 		SpellBook.Standard.TELEPORT_TO_HOUSE.cast();
 	}
 
-	private BarrowsBrothers getVisibleBrother()
+	public BarrowsBrothers getVisibleBrother()
 	{
 		if (Static.getClient().hasHintArrow())
 		{
