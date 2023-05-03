@@ -28,16 +28,19 @@ import net.runelite.client.util.HotkeyListener;
 import net.unethicalite.api.commons.Predicates;
 import net.unethicalite.api.commons.Time;
 import net.unethicalite.api.coords.RectangularArea;
+import net.unethicalite.api.entities.NPCs;
 import net.unethicalite.api.entities.Players;
 import net.unethicalite.api.entities.TileObjects;
 import net.unethicalite.api.game.Combat;
 import net.unethicalite.api.game.GameThread;
 import net.unethicalite.api.game.Skills;
+import net.unethicalite.api.game.Vars;
 import net.unethicalite.api.items.Bank;
 import net.unethicalite.api.items.Equipment;
 import net.unethicalite.api.items.Inventory;
 import net.unethicalite.api.magic.SpellBook;
 import net.unethicalite.api.movement.Movement;
+import net.unethicalite.api.movement.Reachable;
 import net.unethicalite.api.widgets.Dialog;
 import net.unethicalite.api.widgets.Prayers;
 import net.unethicalite.api.widgets.Widgets;
@@ -72,6 +75,7 @@ public class GoonBarrowsPlugin extends Plugin
 	public int customSleep;
 	private final LinkedList<BarrowsBrothers> killOrder = new LinkedList<>();
 	private boolean finished;
+	public int CHESTS_CHECKED;
 
 	@Getter
 	private BarrowsBrothers currentBrother;
@@ -161,6 +165,7 @@ public class GoonBarrowsPlugin extends Plugin
 		keyManager.registerKeyListener(hotkeyListenerTwo);
 		keyManager.registerKeyListener(hotkeyListenerThree);
 
+		CHESTS_CHECKED = 0;
 		newRun = true;
 		finished = false;
 		updateGear();
@@ -222,6 +227,7 @@ public class GoonBarrowsPlugin extends Plugin
 
 		if(event.getGroupId() == WidgetID.BARROWS_REWARD_GROUP_ID)
 		{
+			CHESTS_CHECKED++;
 			feroxTele();
 		}
 	}
@@ -319,23 +325,32 @@ public class GoonBarrowsPlugin extends Plugin
 	{
 		if (Room.getCurrentRoom() == Room.C && !Room.isInCorridor())
 		{
-			if (TileObjects.getNearest("Chest").hasAction("Open"))
-			{
-				GameThread.invoke(() -> TileObjects.getNearest("Chest").interact("Open"));
+			if (getPotentialWithLastBrother() >= 1012) {
+				if (TileObjects.getNearest("Chest").hasAction("Open")) {
+					GameThread.invoke(() -> TileObjects.getNearest("Chest").interact("Open"));
+				}
+				if (TileObjects.getNearest("Chest").hasAction("Search") && !onLastBrother()) {
+					if (Widgets.isVisible(Widgets.get(WidgetID.BARROWS_REWARD_GROUP_ID, 0))) {
+						finished = true;
+					} else {
+						GameThread.invoke(() -> TileObjects.getNearest("Chest").interact("Search"));
+					}
+				}
 			}
-			if (TileObjects.getNearest("Chest").hasAction("Search") && !onLastBrother())
+			else
 			{
-				if (Widgets.isVisible(Widgets.get(WidgetID.BARROWS_REWARD_GROUP_ID, 0)))
-				{
-					finished = true;
-				}
-				else
-				{
-					GameThread.invoke(() -> TileObjects.getNearest("Chest").interact("Search"));
-				}
+				fightForPotential();
 			}
 
 		}
+	}
+
+	private void fightForPotential()
+	{
+		NPC target;
+		target = NPCs.getNearest(n -> n.hasAction("Attack") && Reachable.isInteractable(n));
+		//target = NPCs.getNearest(n -> n.getInteracting() != null && n.getInteracting().equals(Players.getLocal()));
+		GameThread.invoke(() -> target.interact("Attack"));
 	}
 
 	private void traverseTunnel()
@@ -720,6 +735,39 @@ public class GoonBarrowsPlugin extends Plugin
 		}
 	}
 
+	private int getRewardPotential()
+	{
+		int potential = 0;
+
+		for (BarrowsBrothers bro : BarrowsBrothers.values())
+		{
+			potential += Vars.getBit(bro.getKilledVarbit());
+		}
+
+		return potential * 2 + Vars.getBit(Varbits.BARROWS_REWARD_POTENTIAL);
+	}
+
+	public int getPotentialWithLastBrother()
+	{
+		int potential = getRewardPotential();
+
+		for (BarrowsBrothers bro : BarrowsBrothers.values())
+		{
+			if (!bro.isDead())
+			{
+				switch (currentBrother)
+				{
+					case KARIL:
+					case AHRIM:
+						return getRewardPotential() + 100;
+					default:
+						return getRewardPotential() + 117;
+				}
+			}
+		}
+		return potential;
+	}
+
 	private void print(String msg)
 	{
 		final ChatMessageBuilder message = new ChatMessageBuilder()
@@ -730,7 +778,6 @@ public class GoonBarrowsPlugin extends Plugin
 						.type(ChatMessageType.ITEM_EXAMINE)
 						.runeLiteFormattedMessage(message.build())
 				.build());
-
 	}
 
 }

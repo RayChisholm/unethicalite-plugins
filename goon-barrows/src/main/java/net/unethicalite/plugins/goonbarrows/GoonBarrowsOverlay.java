@@ -39,12 +39,10 @@ public class GoonBarrowsOverlay extends OverlayPanel {
                     .color(Color.GREEN)
                     .build());
 
-            if (plugin.getVisibleBrother() != null) {
-                panelComponent.getChildren().add(LineComponent.builder()
-                        .left("Visible:")
-                        .right(plugin.getVisibleBrother().getName())
-                        .build());
-            }
+            panelComponent.getChildren().add(LineComponent.builder()
+                    .left("Potential:")
+                    .right(String.valueOf(plugin.getPotentialWithLastBrother()))
+                    .build());
 
             if (plugin.getCurrentBrother() != null)
             {
@@ -52,23 +50,7 @@ public class GoonBarrowsOverlay extends OverlayPanel {
                         .left("Current:")
                         .right(plugin.getCurrentBrother().getName())
                         .build());
-
-                panelComponent.getChildren().add(LineComponent.builder()
-                        .left("inTunnel:")
-                        .right(String.valueOf(plugin.getCurrentBrother().isInTunnel()))
-                        .build());
             }
-
-            panelComponent.getChildren().add(LineComponent.builder()
-                    .left("Last One:")
-                    .right(String.valueOf(plugin.onLastBrother()))
-                    .build());
-
-            panelComponent.getChildren().add(LineComponent.builder()
-                    .left("New Run:")
-                    .right(String.valueOf(plugin.isNewRun()))
-                    .build());
-
         }
         return super.render(graphics);
     }
