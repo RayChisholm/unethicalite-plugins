@@ -186,6 +186,7 @@ public class GoonBarrowsPlugin extends Plugin
 		tombHandler();
 		tunnelGearHandler();
 		traverseTunnel();
+		handleTreasureRoom();
 	}
 
 	@Subscribe
@@ -300,9 +301,25 @@ public class GoonBarrowsPlugin extends Plugin
 		}
 	}
 
+	private void handleTreasureRoom()
+	{
+		if (Room.getCurrentRoom() == Room.C && !Room.isInCorridor())
+		{
+			if (TileObjects.getNearest("Chest").hasAction("Open"))
+			{
+				GameThread.invoke(() -> TileObjects.getNearest("Chest").interact("Open"));
+			}
+			if (TileObjects.getNearest("Chest").hasAction("Search") && !onLastBrother())
+			{
+				GameThread.invoke(() -> TileObjects.getNearest("Chest").interact("Search"));
+			}
+
+		}
+	}
+
 	private void traverseTunnel()
 	{
-		if (Constants.TUNNEL_AREA.contains(client.getLocalPlayer()))
+		if (Constants.TUNNEL_AREA.contains(client.getLocalPlayer()) && getVisibleBrother() == null)
 		{
 			Room current = Room.getCurrentRoom();
 
