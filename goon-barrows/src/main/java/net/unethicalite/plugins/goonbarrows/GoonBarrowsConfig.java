@@ -32,7 +32,12 @@ public interface GoonBarrowsConfig extends Config
 			position = 8
 	)
 	String sectionThree = "Gear Setup Three";
-
+	@ConfigSection(
+			name = "Tunnel Setup",
+			description = "Arguments for Gear Set Three",
+			position = 19
+	)
+	String sectionFour = "Tunnel Setup";
 
 
 	@ConfigItem(
@@ -166,7 +171,7 @@ public interface GoonBarrowsConfig extends Config
 			name = "Enable Offensive Prayers",
 			description = "Will Toggle Prayer On Switch",
 			position = 14,
-			section = sectionTwo
+			section = sectionThree
 	)
 	default boolean useOffensePrayerThree() { return false; }
 
@@ -175,7 +180,7 @@ public interface GoonBarrowsConfig extends Config
 			name = "Enable Defensive Prayers",
 			description = "Will Toggle Prayer On Switch",
 			position = 15,
-			section = sectionTwo
+			section = sectionThree
 	)
 	default boolean useDefensePrayerThree() { return false; }
 
@@ -207,10 +212,67 @@ public interface GoonBarrowsConfig extends Config
 	default Keybind hotKeyThree() { return Keybind.NOT_SET; }
 
 	@ConfigItem(
+			keyName = "gearsetFour",
+			name = "Karil Setup",
+			description = "Gear Names",
+			position = 19,
+			section = sectionFour
+	)
+	default String gearFour()
+	{
+		return "Gear";
+	}
+
+	@ConfigItem(
+			keyName = "offensePrayFour",
+			name = "Enable Offensive Prayers",
+			description = "Will Toggle Prayer On Switch",
+			position = 20,
+			section = sectionFour
+	)
+	default boolean useOffensePrayerFour() { return false; }
+
+	@ConfigItem(
+			keyName = "defensePrayFour",
+			name = "Enable Defensive Prayers",
+			description = "Will Toggle Prayer On Switch",
+			position = 21,
+			section = sectionFour
+	)
+	default boolean useDefensePrayerFour() { return false; }
+
+	@ConfigItem(
+			keyName = "offensePrayerFour",
+			name = "Offensive Prayer",
+			description = "Offensive Prayer to activate",
+			position = 22,
+			section = sectionFour
+	)
+	default OffensivePrayer offensivePrayerFour() { return OffensivePrayer.PIETY; }
+
+	@ConfigItem(
+			keyName = "defensePrayerFour",
+			name = "Defensive Prayer",
+			description = "Defensive Prayer to activate",
+			position = 23,
+			section = sectionFour
+	)
+	default DefensivePrayer defensivePrayerFour() { return DefensivePrayer.PROTECT_FROM_MAGIC; }
+
+	@ConfigItem(
+			keyName = "hotkeyThree",
+			name = "Hotkey",
+			description = "Hotkey for gear swap.",
+			position = 24,
+			section = sectionFour
+	)
+	default Keybind hotKeyFour() { return Keybind.NOT_SET; }
+
+	@ConfigItem(
 			keyName = "grabGear",
 			name = "Grab Gear",
 			description = "Button to grab gear",
-			position = 19,
+			position = 25,
 			clazz = net.unethicalite.plugins.goonbarrows.GoonBarrowsPlugin.class
 	)
 	default Button grabGear() { return new Button(); }

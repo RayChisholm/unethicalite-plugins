@@ -4,9 +4,12 @@ import com.google.inject.Inject;
 import com.google.inject.Provides;
 import com.google.inject.Singleton;
 import lombok.Getter;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import net.runelite.api.*;
-import net.runelite.api.events.*;
+import net.runelite.api.events.ConfigButtonClicked;
+import net.runelite.api.events.GameTick;
+import net.runelite.api.events.WidgetLoaded;
 import net.runelite.api.widgets.Widget;
 import net.runelite.api.widgets.WidgetID;
 import net.runelite.api.widgets.WidgetInfo;
@@ -24,19 +27,19 @@ import net.runelite.client.ui.overlay.OverlayManager;
 import net.runelite.client.util.HotkeyListener;
 import net.unethicalite.api.commons.Time;
 import net.unethicalite.api.coords.RectangularArea;
-import net.unethicalite.api.entities.NPCs;
 import net.unethicalite.api.entities.TileObjects;
-import net.unethicalite.api.movement.Movement;
-import net.unethicalite.api.widgets.Dialog;
 import net.unethicalite.api.game.Combat;
 import net.unethicalite.api.game.GameThread;
 import net.unethicalite.api.items.Equipment;
 import net.unethicalite.api.items.Inventory;
 import net.unethicalite.api.magic.SpellBook;
+import net.unethicalite.api.movement.Movement;
+import net.unethicalite.api.widgets.Dialog;
 import net.unethicalite.api.widgets.Prayers;
 import net.unethicalite.api.widgets.Widgets;
 import net.unethicalite.client.Static;
 import net.unethicalite.plugins.goonbarrows.data.Constants;
+import net.unethicalite.plugins.goonbarrows.data.Room;
 import net.unethicalite.plugins.goonbarrows.helpers.BarrowsBrothers;
 import net.unethicalite.plugins.goonbarrows.helpers.GearSetup;
 import net.unethicalite.plugins.goonbarrows.helpers.Setups;
@@ -45,10 +48,9 @@ import org.pf4j.Extension;
 import java.awt.*;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.StringSelection;
-import java.util.Arrays;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
+import java.util.Queue;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @PluginDescriptor(name = "Goon Barrows", enabledByDefault = false)
@@ -64,9 +66,14 @@ public class GoonBarrowsPlugin extends Plugin
 	private Widget puzzleAnswer;
 	public int customSleep;
 	private final LinkedList<BarrowsBrothers> killOrder = new LinkedList<>();
+
 	@Getter
 	private BarrowsBrothers currentBrother;
 	@Getter private boolean newRun;
+	@Getter @Setter private Queue<Room> tunnelPath;
+	private Room navigatingFrom;
+	private Room navigatingTo;
+	private boolean stuck;
 
 	@Inject
 	private ChatMessageManager chatMessageManager;
@@ -177,6 +184,8 @@ public class GoonBarrowsPlugin extends Plugin
 		handleBrotherSetups();
 		walkAndDig();
 		tombHandler();
+		tunnelGearHandler();
+		traverseTunnel();
 	}
 
 	@Subscribe
@@ -245,6 +254,7 @@ public class GoonBarrowsPlugin extends Plugin
 		{
 			bro.setInTunnel(false);
 		}
+		tunnelPath = null;
 		newRun = true;
 		buildKillOrder();
 	}
@@ -257,10 +267,14 @@ public class GoonBarrowsPlugin extends Plugin
 				.collect(Collectors.toList());
 		List<String> gearSetupThree = Arrays.stream(config.gearThree().split(","))
 				.collect(Collectors.toList());
+		List<String> gearSetupFour = Arrays.stream(config.gearThree().split(","))
+				.collect(Collectors.toList());
+
 
 		Setups.setSetupOne(new GearSetup(gearSetupOne));
 		Setups.setSetupTwo(new GearSetup(gearSetupTwo));
 		Setups.setSetupThree(new GearSetup(gearSetupThree));
+		Setups.setSetupFour(new GearSetup(gearSetupFour));
 
 		Setups.setOffensivePrayerOne(config.offensivePrayerOne());
 		Setups.setDefensivePrayerOne(config.defensivePrayerOne());
@@ -270,6 +284,85 @@ public class GoonBarrowsPlugin extends Plugin
 
 		Setups.setOffensivePrayerThree(config.offensivePrayerThree());
 		Setups.setDefensivePrayerThree(config.defensivePrayerThree());
+
+		Setups.setOffensivePrayerFour(config.offensivePrayerFour());
+		Setups.setDefensivePrayerFour(config.defensivePrayerFour());
+	}
+
+	private void tunnelGearHandler()
+	{
+		if (Constants.TUNNEL_AREA.contains(client.getLocalPlayer()) && getVisibleBrother() == null)
+		{
+			if (Setups.SETUP_FOUR.getSetup().anyUnequipped())
+			{
+				Setups.SETUP_FOUR.getSetup().switchGear(50);
+			}
+		}
+	}
+
+	private void traverseTunnel()
+	{
+		if (Constants.TUNNEL_AREA.contains(client.getLocalPlayer()))
+		{
+			Room current = Room.getCurrentRoom();
+
+			if (current == Room.C){	return; }
+
+			if (tunnelPath == null || tunnelPath.isEmpty())
+			{
+				tunnelPath = Room.findPath();
+
+				navigatingTo = null;
+				navigatingFrom = null;
+
+				if (tunnelPath.isEmpty()) { return; }
+			}
+
+			if (navigatingFrom == null || navigatingTo == current)
+			{
+				navigatingFrom = tunnelPath.poll();
+				navigatingTo = tunnelPath.peek();
+			}
+			//asdf
+			TileObject door = getDoor();
+			if (door == null) { return; }
+
+			if (stuck)
+			{
+				door = TileObjects.getNearest(Room.DOOR_PREDICATE);
+				stuck = false;
+			}
+
+			final TileObject finalDoor = door;
+
+			GameThread.invoke(() -> finalDoor.interact("Open"));
+
+		}
+	}
+
+	public TileObject getDoor() {
+		Room roomOne;
+		Room roomTwo;
+
+		if (Room.isInCorridor()) {
+			roomOne = navigatingTo;
+			roomTwo = navigatingFrom;
+		} else {
+			roomOne = navigatingFrom;
+			roomTwo = navigatingTo;
+		}
+
+		if (roomOne.getNorth() == roomTwo) {
+			return roomOne.getNorthDoor();
+		} else if (roomOne.getEast() == roomTwo) {
+			return roomOne.getEastDoor();
+		} else if (roomOne.getSouth() == roomTwo) {
+			return roomOne.getSouthDoor();
+		} else if (roomOne.getWest() == roomTwo) {
+			return roomOne.getWestDoor();
+		}
+
+		return null;
 	}
 
 	private void walkAndDig()

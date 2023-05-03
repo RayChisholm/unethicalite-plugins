@@ -17,7 +17,8 @@ import java.time.OffsetDateTime;
 public enum Setups {
     SETUP_ONE,
     SETUP_TWO,
-    SETUP_THREE;
+    SETUP_THREE,
+    SETUP_FOUR;
 
     @Setter
     private GearSetup setup;
@@ -38,6 +39,10 @@ public enum Setups {
     {
         SETUP_THREE.setSetup(gearSetup);
     }
+    public static void setSetupFour(GearSetup gearSetup)
+    {
+        SETUP_FOUR.setSetup(gearSetup);
+    }
 
     public static void setOffensivePrayerOne(OffensivePrayer oPrayer)
     {
@@ -51,6 +56,10 @@ public enum Setups {
     {
         SETUP_THREE.setOprayer(oPrayer);
     }
+    public static void setOffensivePrayerFour(OffensivePrayer oPrayer)
+    {
+        SETUP_FOUR.setOprayer(oPrayer);
+    }
 
     public static void setDefensivePrayerOne(DefensivePrayer dPrayer)
     {
@@ -63,6 +72,10 @@ public enum Setups {
     public static void setDefensivePrayerThree(DefensivePrayer dPrayer)
     {
         SETUP_THREE.setDprayer(dPrayer);
+    }
+    public static void setDefensivePrayerFour(DefensivePrayer dPrayer)
+    {
+        SETUP_FOUR.setDprayer(dPrayer);
     }
 
     public void toggleOffensivePrayer()
