@@ -522,9 +522,42 @@ public class GoonBarrowsPlugin extends Plugin
 					Static.getClient().getHintArrowNpc().interact("Attack");
 				}
 			}
-			else if (Combat.getCurrentHealth() < 40)
+			else
 			{
-				feroxTele();
+				panicTeleHandler();
+			}
+		}
+	}
+
+	private void panicTeleHandler()
+	{
+		if (Combat.getCurrentHealth() <= 30)
+		{
+			if (Inventory.getFirst(config.getFood().getId()) == null)
+			{
+				if (Prayers.getPoints() == 0)
+				{
+					if (Inventory.getFirst(ItemID.PRAYER_POTION1) != null)
+					{
+						Inventory.getFirst(ItemID.PRAYER_POTION1).interact("Drink");
+					}
+					else if (Inventory.getFirst(ItemID.PRAYER_POTION2) != null)
+					{
+						Inventory.getFirst(ItemID.PRAYER_POTION2).interact("Drink");
+					}
+					else if (Inventory.getFirst(ItemID.PRAYER_POTION3) != null)
+					{
+						Inventory.getFirst(ItemID.PRAYER_POTION3).interact("Drink");
+					}
+					else if (Inventory.getFirst(ItemID.PRAYER_POTION4) != null)
+					{
+						Inventory.getFirst(ItemID.PRAYER_POTION4).interact("Drink");
+					}
+					else
+					{
+						feroxTele();
+					}
+				}
 			}
 		}
 	}
@@ -554,10 +587,11 @@ public class GoonBarrowsPlugin extends Plugin
 			}
 			else
 			{
-				if (Combat.getCurrentHealth() < 30)
-				{
-					feroxTele();
-				}
+				panicTeleHandler();
+			}
+			if (Static.getClient().getHintArrowNpc() != null)
+			{
+				Static.getClient().getHintArrowNpc().interact("Attack");
 			}
 		}
 	}
