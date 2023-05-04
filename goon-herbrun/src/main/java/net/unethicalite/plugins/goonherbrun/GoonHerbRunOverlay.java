@@ -15,11 +15,11 @@ import java.awt.*;
 
 public class GoonHerbRunOverlay extends OverlayPanel {
     private final Client client;
-    private final GoonBarrowsPlugin plugin;
-    private final GoonBarrowsConfig config;
+    private final GoonHerbRunPlugin plugin;
+    private final GoonHerbRunConfig config;
 
     @Inject
-    private GoonHerbRunOverlay(Client client, GoonBarrowsPlugin plugin, GoonBarrowsConfig config)
+    private GoonHerbRunOverlay(Client client, GoonHerbRunPlugin plugin, GoonHerbRunConfig config)
     {
         this.client = client;
         this.plugin = plugin;
