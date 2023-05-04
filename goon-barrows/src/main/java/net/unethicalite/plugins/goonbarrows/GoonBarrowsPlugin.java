@@ -115,59 +115,12 @@ public class GoonBarrowsPlugin extends Plugin
 		return configManager.getConfig(net.unethicalite.plugins.goonbarrows.GoonBarrowsConfig.class);
 	}
 
-	private final HotkeyListener hotkeyListenerOne = new HotkeyListener(() -> config.hotKeyOne()) {
-		@Override
-		public void hotkeyPressed() {
-			Setups.SETUP_ONE.getSetup().switchGear(50);
-			if (config.useOffensePrayerOne())
-			{
-				Setups.SETUP_ONE.toggleOffensivePrayer();
-			}
-			if (config.useDefensePrayerOne())
-			{
-				Setups.SETUP_ONE.toggleDefensivePrayer();
-			}
-		}
-	};
-	private final HotkeyListener hotkeyListenerTwo = new HotkeyListener(() -> config.hotKeyTwo()) {
-		@Override
-		public void hotkeyPressed() {
-			Setups.SETUP_TWO.getSetup().switchGear(50);
-			if (config.useOffensePrayerTwo())
-			{
-				Setups.SETUP_TWO.toggleOffensivePrayer();
-			}
-			if (config.useDefensePrayerTwo())
-			{
-				Setups.SETUP_TWO.toggleDefensivePrayer();
-			}
-		}
-	};
-	private final HotkeyListener hotkeyListenerThree = new HotkeyListener(() -> config.hotKeyThree()) {
-		@Override
-		public void hotkeyPressed() {
-			Setups.SETUP_THREE.getSetup().switchGear(50);
-			if (config.useOffensePrayerThree())
-			{
-				Setups.SETUP_THREE.toggleOffensivePrayer();
-			}
-			if (config.useDefensePrayerThree())
-			{
-				Setups.SETUP_THREE.toggleDefensivePrayer();
-			}
-		}
-	};
-
 
 	@Override
 	protected void startUp() throws Exception
 	{
 		customSleep = 0;
 		overlayManager.add(overlay);
-
-		keyManager.registerKeyListener(hotkeyListenerOne);
-		keyManager.registerKeyListener(hotkeyListenerTwo);
-		keyManager.registerKeyListener(hotkeyListenerThree);
 
 		CHESTS_CHECKED = 0;
 		newRun = true;
@@ -181,10 +134,6 @@ public class GoonBarrowsPlugin extends Plugin
 	{
 		puzzleAnswer = null;
 		overlayManager.remove(overlay);
-
-		keyManager.unregisterKeyListener(hotkeyListenerOne);
-		keyManager.unregisterKeyListener(hotkeyListenerTwo);
-		keyManager.unregisterKeyListener(hotkeyListenerThree);
 	}
 
 	@Subscribe
@@ -315,17 +264,6 @@ public class GoonBarrowsPlugin extends Plugin
 		Setups.setSetupThree(new GearSetup(gearSetupThree));
 		Setups.setSetupFour(new GearSetup(gearSetupFour));
 
-		Setups.setOffensivePrayerOne(config.offensivePrayerOne());
-		Setups.setDefensivePrayerOne(config.defensivePrayerOne());
-
-		Setups.setOffensivePrayerTwo(config.offensivePrayerTwo());
-		Setups.setDefensivePrayerTwo(config.defensivePrayerTwo());
-
-		Setups.setOffensivePrayerThree(config.offensivePrayerThree());
-		Setups.setDefensivePrayerThree(config.defensivePrayerThree());
-
-		Setups.setOffensivePrayerFour(config.offensivePrayerFour());
-		Setups.setDefensivePrayerFour(config.defensivePrayerFour());
 	}
 
 	private void tunnelGearHandler()
@@ -575,10 +513,10 @@ public class GoonBarrowsPlugin extends Plugin
 
 	private void eatFood()
 	{
-		if (Combat.getMissingHealth() > 20)
+		if (Combat.getMissingHealth() > config.getFood().getHealAmount())
 		{
-			if (Inventory.getFirst(ItemID.COOKED_KARAMBWAN) != null) {
-				Inventory.getFirst(ItemID.COOKED_KARAMBWAN).interact("Eat");
+			if (Inventory.getFirst(config.getFood().getId()) != null) {
+				Inventory.getFirst(config.getFood().getId()).interact("Eat");
 				if (Static.getClient().getHintArrowNpc() != null)
 				{
 					Static.getClient().getHintArrowNpc().interact("Attack");
@@ -650,7 +588,7 @@ public class GoonBarrowsPlugin extends Plugin
 			else if (!Inventory.contains((i) -> Constants.PRAYER_RESTORE_POTION_IDS.contains(i.getId()))
 					|| (!Inventory.contains(Predicates.ids(Constants.DUELING_RING_IDS))
 					&& !Equipment.contains(Predicates.ids(Constants.DUELING_RING_IDS)))
-					|| Inventory.getCount(ItemID.COOKED_KARAMBWAN) < 10
+					|| Inventory.getCount(config.getFood().getId()) < config.foodCount()
 					|| Inventory.contains(i -> i.getName().contains("Clue scroll"))
 					|| Inventory.contains(Predicates.ids(Constants.BARROWS_UNDEGRADED_IDS))
 					|| Inventory.contains(Predicates.ids(Constants.BARROWS_BASIC_LOOT_IDS)))
@@ -685,12 +623,12 @@ public class GoonBarrowsPlugin extends Plugin
 						}
 					}
 
-					int foodQuantity = 11 - Inventory.getCount(ItemID.COOKED_KARAMBWAN);
+					int foodQuantity = config.foodCount() - Inventory.getCount(config.getFood().getId());
 					if (foodQuantity > 0) {
-						if (Bank.getCount(true, ItemID.COOKED_KARAMBWAN) < foodQuantity) {
+						if (Bank.getCount(true, config.getFood().getId()) < foodQuantity) {
 							print("Out of food. Stopping plugin.");
 						}
-						Bank.withdraw(ItemID.COOKED_KARAMBWAN, 1, Bank.WithdrawMode.ITEM);
+						Bank.withdraw(config.getFood().getId(), 1, Bank.WithdrawMode.ITEM);
 					}
 
 					if (!Inventory.contains(Predicates.ids(Constants.DUELING_RING_IDS))
