@@ -1,5 +1,6 @@
 package net.unethicalite.plugins.goonherbrun;
 
+import net.unethicalite.api.magic.Spell;
 import net.unethicalite.plugins.goonherbrun.utils.*;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -41,6 +42,14 @@ public enum Location {
             () -> {
                 if (GoonHerbRunPlugin.catherbyThroughHouse) {
                     return ChaosMovement.teleportThroughHouse(HouseTeleport.CATHERBY);
+                }
+                else
+                {
+                    if (SpellBook.Standard.CAMELOT_TELEPORT.canCast())
+                    {
+                        SpellBook.Standard.CAMELOT_TELEPORT.cast();
+                        return true;
+                    }
                 }
 
                 return false;
