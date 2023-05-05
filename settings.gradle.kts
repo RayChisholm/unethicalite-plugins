@@ -39,6 +39,7 @@ include("unethical-logout")
 include("goon-hotkeyswap")
 include("goon-barrows")
 include("goon-herbrun")
+include("goon-sandminer")
 //include("example-kotlin")
 
 for (project in rootProject.children) {

@@ -39,6 +39,19 @@
   }]
 }, {
   "projectUrl": "",
+  "provider": "RayChisholm",
+  "name": "Goon Sand Miner",
+  "description": "Auto Mines Sand",
+  "id": "goonsandminer-plugin",
+  "releases": [{
+    "date": "2023-05-04",
+    "sha512sum": "FDA2AD86D63787D8AAB6C8FF5184E4B555DB5ADDDCA15F618F0F02A08E84B0AC5B830A51E47C95685577DD13C29B170AAA814067ED0973E5BD35C9CAB69475A8",
+    "version": "0.0.1",
+    "url": "https://github.com/RayChisholm/unethicalite-plugins/blob/master/release/goon-sandminer-0.0.1.jar?raw=true",
+    "requires": "^1.0.0"
+  }]
+}, {
+  "projectUrl": "",
   "provider": "melxin",
   "name": "Unethical Auto Login",
   "description": "Automatically logs in specified account in config",
