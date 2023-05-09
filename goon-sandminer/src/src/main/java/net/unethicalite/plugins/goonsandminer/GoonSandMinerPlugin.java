@@ -47,13 +47,8 @@ import net.unethicalite.api.widgets.Dialog;
 import net.unethicalite.api.widgets.Prayers;
 import net.unethicalite.api.widgets.Widgets;
 import net.unethicalite.client.Static;
-import net.unethicalite.plugins.goonbarrows.data.Constants;
-import net.unethicalite.plugins.goonbarrows.data.Room;
-import net.unethicalite.plugins.goonbarrows.helpers.BarrowsBrothers;
-import net.unethicalite.plugins.goonbarrows.helpers.GearSetup;
-import net.unethicalite.plugins.goonbarrows.helpers.Interact;
-import net.unethicalite.plugins.goonbarrows.helpers.Setups;
 import org.pf4j.Extension;
+import net.unethicalite.plugins.goonsandminer.tasks.*
 
 import java.awt.*;
 import java.awt.datatransfer.Clipboard;
@@ -86,6 +81,7 @@ public class GoonSandMinerPlugin extends TickScript {
 
         overlayManager.add(overlay);
 
+        addTask(MineSand.class);
         //addTask(task.class)
     }
     @Override

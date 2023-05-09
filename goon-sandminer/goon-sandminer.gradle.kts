@@ -3,10 +3,6 @@ version = "0.0.1"
 project.extra["PluginName"] = "Goon Sand Miner"
 project.extra["PluginDescription"] = "Auto Mines Sand"
 
-dependencies {
-    implementation("org.jboss.aerogear:aerogear-otp-java:1.0.0")
-}
-
 tasks {
     jar {
         manifest {

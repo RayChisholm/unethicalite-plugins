@@ -1,5 +1,6 @@
 package src.main.java.net.unethicalite.plugins.goonsandminer;
 
+import src.main.java.net.unethicalite.plugins.goonsandminer.utils.*;
 import com.google.inject.Inject;
 import net.runelite.api.Client;
 import net.runelite.api.GameState;
